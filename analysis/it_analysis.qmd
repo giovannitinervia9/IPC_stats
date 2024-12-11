@@ -231,7 +231,7 @@ teor_distr <- pexp(intertimes_distr$intertimes, rate = exp_fit$estimate)
 intertimes_distr$exp <- teor_distr
 
 ggplot(data = intertimes_distr) + 
-  geom_point(aes(x = exp, y = cum_freq), pch = 1) + 
+  geom_point(aes(x = exp, y = cum_freq), col = "red", pch = 1) + 
   geom_abline(intercept = 0, slope = 1)
 ```
 
