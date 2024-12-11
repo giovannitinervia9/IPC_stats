@@ -236,4 +236,109 @@ ggplot(data = intertimes_distr) +
 ```
 
 
+## Plot processo di punto
+
+
+
+```{r}
+library(ggplot2)
+library(sf)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(dplyr)
+
+df <- data.frame(x = war$latitude,
+                 y = war$longitude,
+                 t = war$days_since_start,
+                 side_b = war$side_b)
+
+# Load the world map
+world <- ne_countries(scale = "medium", returnclass = "sf")
+
+# Define a bounding box for Israel and the surrounding region
+# Adjust the range of latitudes and longitudes as necessary
+region_bbox <- st_bbox(c(
+  xmin = 33.0,  # Adjust this for more western longitude
+  xmax = 37.5,  # Adjust this for more eastern longitude
+  ymin = 29.5,  # Adjust this for more southern latitude
+  ymax = 34.5   # Adjust this for more northern latitude
+), crs = st_crs(4326))  # WGS84 coordinate reference system
+
+# Crop the world map to the bounding box
+region <- st_crop(world, region_bbox)
+
+# Convert df to an sf object
+df_sf <- st_as_sf(df, coords = c("y", "x"), crs = 4326)
+
+# Plot the data with the map
+
+p1 <- ggplot() +
+    geom_sf(data = region, fill = "lightgray", color = "black") +  # Region map
+    geom_sf(data = df_sf, aes(color = side_b), size = 0.5, alpha = 0.7) +  # Points from df
+    theme_minimal() +
+    coord_sf(xlim = c(region_bbox$xmin, region_bbox$xmax),
+             ylim = c(region_bbox$ymin, region_bbox$ymax),
+             expand = FALSE) +
+    labs(title = paste0("Conflict Events in Israel"),
+         x = "Longitude",
+         y = "Latitude")
+
+p1 
+```
+
+```{r}
+w_isr <- read.csv("places_of_worship_israel.csv", sep = ",")[,-1]
+colnames(w_isr) <- c("x", "y")
+```
+
+**CALCOLARE TUTTE LE DISTANZE TRA I PUNTI-EVENTO ED I LUOGHI DI CULTO E PER CIASCUN PUNTO EVENTO SELEZIONARE IL LUOGO DI CULTO CON DISTANZA MINIMA**
+
+```{r}
+# Load necessary libraries
+library(foreach)
+library(doParallel)
+
+# Set up the parallel backend
+num_cores <- round(parallel::detectCores()/2)  
+cl <- makeCluster(num_cores)
+registerDoParallel(cl)
+
+# Parallel computation with foreach
+min_distance_from_i <- foreach(i = 1:nrow(war), .combine = c, .packages = "base") %dopar% {
+  # Initialize variables within the loop
+  distance_from_i <- numeric(nrow(w_isr))
+  
+  # Extract coordinates for the i-th row of 'war'
+  xy_i <- as.numeric(war[i, c("latitude", "longitude")])
+  
+  # Compute distances for all rows in 'w_isr'
+  for (j in 1:nrow(w_isr)) {
+    xy_j <- as.numeric(w_isr[j, , drop = TRUE])
+    distance_from_i[j] <- sum((xy_i - xy_j)^2)
+  }
+  
+  # Return the index of the minimum distance
+  which.min(distance_from_i)
+}
+
+# Stop the parallel backend
+stopCluster(cl)
+
+# Result is stored in 'min_distance_from_i'
+
+# 
+w_isr <- w_isr[unique(min_distance_from_i),]
+
+```
+```{r}
+w_isr_sf <- st_as_sf(w_isr, coords = c("y", "x"), crs = 4326)
+
+p1 + geom_sf(data = w_isr_sf, size = 0.7, alpha = 0.25, pch = 3) + labs(subtitle = "Black crosses are places of worship")
+```
+
+
+
+
+
+
 
