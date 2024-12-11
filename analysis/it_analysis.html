@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="it" xml:lang="it"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.5.57">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Storia statistica del conflitto Israelo-Palestinese dal 1989 ad oggi</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="it_analysis_files/libs/clipboard/clipboard.min.js"></script>
+<script src="it_analysis_files/libs/quarto-html/quarto.js"></script>
+<script src="it_analysis_files/libs/quarto-html/popper.min.js"></script>
+<script src="it_analysis_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="it_analysis_files/libs/quarto-html/anchor.min.js"></script>
+<link href="it_analysis_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="it_analysis_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="it_analysis_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="it_analysis_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="it_analysis_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<style>html{ scroll-behavior: smooth; }</style>
+<link href="it_analysis_files/libs/pagedtable-1.1/css/pagedtable.css" rel="stylesheet">
+<script src="it_analysis_files/libs/pagedtable-1.1/js/pagedtable.js"></script>
+
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article toc-left">
+<div id="quarto-sidebar-toc-left" class="sidebar toc-left">
+  <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="99">
+    <h2 id="toc-title">Indice</h2>
+   
+  <ul>
+  <li><a href="#uppsala-conflict-data-program" id="toc-uppsala-conflict-data-program" class="nav-link active" data-scroll-target="#uppsala-conflict-data-program"><span class="header-section-number">1</span> Uppsala Conflict Data Program</a></li>
+  <li><a href="#variabili-presenti-nel-dataset" id="toc-variabili-presenti-nel-dataset" class="nav-link" data-scroll-target="#variabili-presenti-nel-dataset"><span class="header-section-number">2</span> Variabili presenti nel dataset</a></li>
+  <li><a href="#conflitto-israelo-palestinese" id="toc-conflitto-israelo-palestinese" class="nav-link" data-scroll-target="#conflitto-israelo-palestinese"><span class="header-section-number">3</span> Conflitto Israelo-Palestinese</a></li>
+  <li><a href="#il-dataset-considerato" id="toc-il-dataset-considerato" class="nav-link" data-scroll-target="#il-dataset-considerato"><span class="header-section-number">4</span> Il dataset considerato</a></li>
+  <li><a href="#qualità-del-dato" id="toc-qualità-del-dato" class="nav-link" data-scroll-target="#qualità-del-dato"><span class="header-section-number">5</span> Qualità del dato</a></li>
+  <li><a href="#analisi-degli-intertempi" id="toc-analisi-degli-intertempi" class="nav-link" data-scroll-target="#analisi-degli-intertempi"><span class="header-section-number">6</span> Analisi degli intertempi</a></li>
+  </ul>
+</nav>
+</div>
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+</div>
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Storia statistica del conflitto Israelo-Palestinese dal 1989 ad oggi</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Autore/Autrice</div>
+    <div class="quarto-title-meta-contents">
+             <p>Adragna R., Rampulla A., Tinervia G. </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="uppsala-conflict-data-program" class="level1" data-number="1">
+<h1 data-number="1"><span class="header-section-number">1</span> Uppsala Conflict Data Program</h1>
+<p>L’Uppsala Conflict Data Program (UCDP) è un’iniziativa del <em>Uppsala University’s Department of Peace and Conflict Research</em>, volta a fornire dati completi, dettagliati dal punto di vista geografico e temporale sulla violenza organizzata a livello globale. L’UCDP Georeferenced Event Dataset (GED) copre gli eventi di violenza dal 1989 al 2023 e definisce un evento come <em>“un incidente di violenza letale che coinvolge attori organizzati, con almeno una vittima diretta, che si verifica in un momento e in un luogo specifici”</em>. La raccolta dei dati si basa su servizi di newswire globali, media locali, ONG e altre fonti specializzate, con rigorosi processi di validazione per garantire qualità e affidabilità.</p>
+</section>
+<section id="variabili-presenti-nel-dataset" class="level1" data-number="2">
+<h1 data-number="2"><span class="header-section-number">2</span> Variabili presenti nel dataset</h1>
+<p>L’UCDP Georeferenced Event Dataset rileva una vasta gamma di variabili per ogni evento, tra cui dettagli sugli attori coinvolti, coordinate spazio-temporali ed una stima del numero di vittime scaturite dall’evento, differenziando per vittime appartenenti ad una delle parti contrapposte e vittime civili.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Per il nostro lavoro, le variabili di interesse principali</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="co"># sono le coordinate geografiche dell'evento, la data di inizio</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co"># dell'episodio di violenza e la stima più precisa del numero</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># totale di morti. </span></span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="conflitto-israelo-palestinese" class="level1" data-number="3">
+<h1 data-number="3"><span class="header-section-number">3</span> Conflitto Israelo-Palestinese</h1>
+<p>Il conflitto israelo-palestinese è una delle dispute più longeve e complesse del mondo moderno, originato alla fine del XIX secolo con l’ascesa del sionismo e del nazionalismo arabo. La tensione si intensificò durante il mandato britannico in Palestina e culminò nel 1948 con la fondazione dello Stato di Israele, evento noto come Nakba per i palestinesi, che portò all’esodo di centinaia di migliaia di persone. Guerre successive (1948, 1967, 1973) consolidarono l’occupazione israeliana di territori come Cisgiordania, Gerusalemme Est e Gaza. I tentativi di pace, come gli Accordi di Oslo (1993), hanno avuto un successo limitato, e le tensioni permangono su questioni centrali: confini, rifugiati, sicurezza e lo status di Gerusalemme.</p>
+<p>Dal 1989, il conflitto ha visto periodi alterni di violenza e negoziati, come la Seconda Intifada (2000-2005), il ritiro israeliano da Gaza (2005) e la vittoria elettorale di Hamas (2006), che ha diviso i territori palestinesi. Ripetuti scontri armati tra Israele e Hamas (2008, 2012, 2014, 2021) hanno segnato la Striscia di Gaza, mentre in Cisgiordania l’espansione degli insediamenti e le incursioni militari hanno aggravato le tensioni.</p>
+<p>Le principali fazioni palestinesi includono:</p>
+<ol type="1">
+<li><p><strong>Hamas</strong>: Movimento islamista e organizzazione politica-militare, controlla la Striscia di Gaza dal 2007. È nota per il suo rifiuto di riconoscere Israele e il suo impegno nella resistenza armata contro l’occupazione israeliana. È considerata un’organizzazione terroristica da Israele, Stati Uniti, Unione Europea e altri.</p></li>
+<li><p><strong>PFLP</strong> (Fronte Popolare per la Liberazione della Palestina): Gruppo marxista-leninista e laico, parte dell’Organizzazione per la Liberazione della Palestina (OLP). È noto per il suo passato di attentati e dirottamenti negli anni ’60-’70. Il PFLP è critico sia nei confronti di Israele che dell’Autorità Palestinese.</p></li>
+<li><p><strong>PFLP-GC</strong> (Fronte Popolare per la Liberazione della Palestina – Comando Generale): Una scissione del PFLP, con una forte impronta militare. È attivo principalmente in Siria e Libano, con operazioni contro Israele.</p></li>
+<li><p><strong>Fatah</strong>: Il principale partito dell’OLP e al potere in Cisgiordania attraverso l’Autorità Palestinese (PNA). In passato, ha adottato tattiche di lotta armata, ma oggi sostiene principalmente negoziati con Israele.</p></li>
+<li><p><strong>PIJ</strong> (Jihad Islamica Palestinese): Gruppo islamista militante, più piccolo di Hamas ma ugualmente focalizzato sulla resistenza armata contro Israele. Si oppone a qualsiasi trattativa di pace.</p></li>
+<li><p><strong>PNA</strong> (Autorità Nazionale Palestinese): Il governo semi-autonomo in Cisgiordania creato dagli Accordi di Oslo nel 1994. Controllato principalmente da Fatah, la PNA è spesso in conflitto politico e talvolta militare con Israele.</p></li>
+<li><p><strong>AMB</strong> (Al-Aqsa Martyrs’ Brigades): Ala militante legata a Fatah, nota per gli attacchi contro civili e militari israeliani durante la Seconda Intifada.</p></li>
+<li><p><strong>PRC</strong> (Comitati di Resistenza Popolare): Gruppo armato con base a Gaza, noto per attacchi contro Israele e cooperazioni con altre fazioni militanti come Hamas.</p></li>
+</ol>
+<p>Dal 2020, gli Accordi di Abramo hanno normalizzato i rapporti tra Israele e alcuni Stati arabi, ma non hanno migliorato la situazione con i palestinesi. Recenti escalation (2023-2024), incluso il conflitto tra Israele e Hamas, hanno portato a una crisi umanitaria senza precedenti a Gaza, aggravando ulteriormente lo stallo politico.</p>
+</section>
+<section id="il-dataset-considerato" class="level1" data-number="4">
+<h1 data-number="4"><span class="header-section-number">4</span> Il dataset considerato</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">load</span>(<span class="st">"IS_PAL.RData"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>war<span class="sc">$</span>side_b <span class="ot">&lt;-</span> <span class="fu">factor</span>(war<span class="sc">$</span>side_b)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>war<span class="sc">$</span>adm_1 <span class="ot">&lt;-</span> <span class="fu">factor</span>(war<span class="sc">$</span>adm_1)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>war<span class="sc">$</span>event_clarity <span class="ot">&lt;-</span> <span class="fu">factor</span>(war<span class="sc">$</span>event_clarity)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>war<span class="sc">$</span>date_prec <span class="ot">&lt;-</span> <span class="fu">factor</span>(war<span class="sc">$</span>date_prec)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>rmarkdown<span class="sc">::</span><span class="fu">paged_table</span>(<span class="fu">head</span>(war, <span class="dv">10</span>))</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div data-pagedtable="false">
+  <script data-pagedtable-source="" type="application/json">
+{"columns":[{"label":["year"],"name":[1],"type":["dbl"],"align":["right"]},{"label":["side_b"],"name":[2],"type":["fct"],"align":["left"]},{"label":["adm_1"],"name":[3],"type":["fct"],"align":["left"]},{"label":["latitude"],"name":[4],"type":["dbl"],"align":["right"]},{"label":["longitude"],"name":[5],"type":["dbl"],"align":["right"]},{"label":["event_clarity"],"name":[6],"type":["fct"],"align":["left"]},{"label":["date_prec"],"name":[7],"type":["fct"],"align":["left"]},{"label":["date_start"],"name":[8],"type":["dttm"],"align":["right"]},{"label":["date_end"],"name":[9],"type":["dttm"],"align":["right"]},{"label":["deaths_a"],"name":[10],"type":["dbl"],"align":["right"]},{"label":["deaths_b"],"name":[11],"type":["dbl"],"align":["right"]},{"label":["deaths_civilians"],"name":[12],"type":["dbl"],"align":["right"]},{"label":["deaths_unknown"],"name":[13],"type":["dbl"],"align":["right"]},{"label":["best"],"name":[14],"type":["dbl"],"align":["right"]}],"data":[{"1":"1989","2":"Hamas","3":"Gaza Strip","4":"31.42507","5":"34.37340","6":"1","7":"1","8":"1989-05-03","9":"1989-05-03","10":"1","11":"0","12":"0","13":"0","14":"1"},{"1":"1989","2":"PFLP","3":"West Bank","4":"31.90256","5":"35.19555","6":"1","7":"1","8":"1989-07-10","9":"1989-07-10","10":"0","11":"1","12":"0","13":"0","14":"1"},{"1":"1989","2":"PFLP-GC","3":"Northern district","4":"32.45750","5":"35.55610","6":"1","7":"1","8":"1989-09-02","9":"1989-09-02","10":"2","11":"1","12":"0","13":"0","14":"3"},{"1":"1989","2":"Fatah","3":"Gaza Strip","4":"31.42583","5":"34.34056","6":"1","7":"1","8":"1989-09-14","9":"1989-09-14","10":"0","11":"1","12":"0","13":"0","14":"1"},{"1":"1989","2":"PFLP","3":"West Bank","4":"32.00000","5":"35.25000","6":"1","7":"1","8":"1989-11-09","9":"1989-11-09","10":"0","11":"1","12":"0","13":"0","14":"1"},{"1":"1989","2":"Hamas","3":"Gaza Strip","4":"31.51667","5":"34.45000","6":"1","7":"1","8":"1989-11-13","9":"1989-11-13","10":"2","11":"0","12":"0","13":"0","14":"2"},{"1":"1989","2":"Fatah","3":"West Bank","4":"32.21992","5":"35.26362","6":"1","7":"1","8":"1989-12-01","9":"1989-12-01","10":"0","11":"4","12":"0","13":"0","14":"4"},{"1":"1990","2":"Fatah","3":"West Bank","4":"32.21992","5":"35.26362","6":"1","7":"1","8":"1990-01-23","9":"1990-01-23","10":"0","11":"1","12":"0","13":"0","14":"1"},{"1":"1990","2":"Fatah","3":"West Bank","4":"32.21992","5":"35.26362","6":"1","7":"1","8":"1990-03-22","9":"1990-03-22","10":"0","11":"2","12":"0","13":"0","14":"2"},{"1":"1990","2":"Hamas","3":"Gaza Strip","4":"31.34929","5":"34.29336","6":"1","7":"1","8":"1990-04-18","9":"1990-04-18","10":"0","11":"1","12":"0","13":"0","14":"1"}],"options":{"columns":{"min":{},"max":[10]},"rows":{"min":[10],"max":[10]},"pages":{}}}
+  </script>
+</div>
+</div>
+</div>
+<p>Il dataset da noi considerato riguarda soltanto gli eventi del conflitto Israelo-Palestinese avvenuti nel territorio Israeliano. Le variabili rilevanti per la nostra analisi sono:</p>
+<ol type="1">
+<li><p><strong>id</strong>: Identificatore univoco per ogni evento nel dataset.</p></li>
+<li><p><strong>year</strong>: L’anno in cui si è verificato l’evento di violenza.</p></li>
+<li><p><strong>dyad_name</strong>: Il nome della diade di fazioni contrapposte coinvolte nell’evento (ad esempio, “Governo di Israele - Hamas”).</p></li>
+<li><p><strong>side_b</strong>: La fazione coinvolta nell’evento, opposta al governo di Israele (può essere una delle fazioni palestinesi, come Hamas o Fatah).</p></li>
+<li><p><strong>adm_1</strong>: Livello amministrativo 1, che rappresenta la suddivisione regionale in cui è avvenuto l’evento (come una provincia o un distretto).</p></li>
+<li><p><strong>latitude</strong>: La latitudine geografica in cui l’evento si è verificato.</p></li>
+<li><p><strong>longitude</strong>: La longitudine geografica in cui l’evento si è verificato.</p></li>
+<li><p><strong>event_clarity</strong>: Indica il livello di chiarezza del report sull’evento, con valori che riflettono la certezza dei dettagli (ad esempio, se l’evento è stato chiaramente documentato o se ci sono incertezze).</p></li>
+<li><p><strong>date_prec</strong>: Precisione della data dell’evento, indicando se la data è certa o approssimativa.</p></li>
+<li><p><strong>date_start</strong>: La data di inizio dell’evento di violenza.</p></li>
+<li><p><strong>date_end</strong>: La data di fine dell’evento di violenza, se rilevante.</p></li>
+<li><p><strong>deaths_a</strong>: Numero di morti tra le forze o i membri della fazione “a” (ad esempio, Israele).</p></li>
+<li><p><strong>deaths_b</strong>: Numero di morti tra le forze o i membri della fazione “b” (ad esempio, Hamas o Fatah).</p></li>
+<li><p><strong>deaths_civilians</strong>: Numero di morti tra i civili durante l’evento.</p></li>
+<li><p><strong>deaths_unknown</strong>: Numero di morti la cui affiliazione o identità non è stata determinata.</p></li>
+<li><p><strong>best</strong>: La stima migliore del numero totale di morti, basata sui dati disponibili.</p></li>
+<li><p><strong>high</strong>: La stima più alta del numero di morti, indicando il massimo stimato.</p></li>
+<li><p><strong>low</strong>: La stima più bassa del numero di morti, indicando il minimo stimato.</p></li>
+</ol>
+</section>
+<section id="qualità-del-dato" class="level1" data-number="5">
+<h1 data-number="5"><span class="header-section-number">5</span> Qualità del dato</h1>
+<p><strong>Quadro sinottico per variabili di qualità del dato</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>war<span class="sc">$</span>event_duration <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>((war<span class="sc">$</span>date_end <span class="sc">-</span> war<span class="sc">$</span>date_start)<span class="sc">/</span>(<span class="dv">3600</span><span class="sc">*</span><span class="dv">24</span>)) <span class="co">#durata dell'evento</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co">#la durata veniva restituita in secondi, l'ho trasformata in ore</span></span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(war<span class="sc">$</span>event_duration)</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="it_analysis_files/figure-html/unnamed-chunk-5-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hist</span>(war<span class="sc">$</span>event_duration[war<span class="sc">$</span>event_duration<span class="sc">!=</span><span class="dv">0</span>])</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="it_analysis_files/figure-html/unnamed-chunk-5-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">addmargins</span>(<span class="fu">table</span>(war<span class="sc">$</span>event_clarity[war<span class="sc">$</span>event_duration<span class="sc">!=</span><span class="dv">0</span>],</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>                 war<span class="sc">$</span>event_duration[war<span class="sc">$</span>event_duration<span class="sc">!=</span><span class="dv">0</span>]))</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     
+       1  2  4  5  7  8 13 24 29 30 99 Sum
+  1   52  5  0  1  1  1  0  0  2  1  1  64
+  2   15  3  1  0  1  1  1  1  1  1  0  25
+  Sum 67  8  1  1  2  2  1  1  3  2  1  89</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co">#89 eventi su 4181 non si concludono nello stesso giorno, 52 degli 89 eventi si </span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">#sono conclusi il giorno successivo a quello di inizio</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">#distribuzione di event_clarity condizionatamente a date_prec</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> war) <span class="sc">+</span> </span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_bar</span>(<span class="at">mapping =</span> <span class="fu">aes</span>(<span class="at">x =</span> event_clarity, <span class="at">fill =</span> date_prec), <span class="at">position =</span> <span class="st">"fill"</span>)</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="it_analysis_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">#morti per anno</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>fatalities <span class="ot">&lt;-</span> war <span class="sc">|&gt;</span> </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">group_by</span>(year) <span class="sc">|&gt;</span> </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">summarise</span>(<span class="at">fatalities_per_year =</span> <span class="fu">sum</span>(best))</span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(fatalities, <span class="fu">aes</span>(<span class="at">x =</span> year, <span class="at">y =</span> fatalities_per_year)) <span class="sc">+</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_line</span>(<span class="at">color =</span> <span class="st">"black"</span>, <span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span>  <span class="co"># Linea blu</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"red"</span>, <span class="at">size =</span> <span class="dv">2</span>) <span class="sc">+</span> <span class="co"># Punti rossi per enfatizzare i dati</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Serie Storica dei morti per Anno"</span>,</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>         <span class="at">x =</span> <span class="st">"Anno"</span>,</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>         <span class="at">y =</span> <span class="st">"Fatalità"</span>) <span class="sc">+</span></span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">theme_minimal</span>()</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="it_analysis_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co">#densità di event_duration condizionata a event_clarity</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>filtered_war <span class="ot">&lt;-</span> war <span class="sc">|&gt;</span> </span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(event_duration<span class="sc">!=</span><span class="dv">0</span>)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(filtered_war, <span class="fu">aes</span>(<span class="at">x =</span> event_duration, <span class="at">fill =</span> event_clarity)) <span class="sc">+</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_density</span>(<span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span> event_clarity) <span class="sc">+</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">labs</span>(</span>
+<span id="cb11-10"><a href="#cb11-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">title =</span> <span class="st">"Distribuzione della densità della durata degli eventi per chiarezza"</span>,</span>
+<span id="cb11-11"><a href="#cb11-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">x =</span> <span class="st">"Durata dell'evento"</span>,</span>
+<span id="cb11-12"><a href="#cb11-12" aria-hidden="true" tabindex="-1"></a>        <span class="at">y =</span> <span class="st">"Densità"</span>)</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="it_analysis_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co">#distribuzione di event_duration condizionata a event_clarity</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(filtered_war, <span class="fu">aes</span>(<span class="at">x =</span> event_duration, <span class="at">fill =</span> event_clarity)) <span class="sc">+</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">geom_bar</span>(<span class="at">alpha =</span> <span class="fl">0.7</span>) <span class="sc">+</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">facet_wrap</span>(<span class="sc">~</span> event_clarity)</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="it_analysis_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="analisi-degli-intertempi" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Analisi degli intertempi</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>date_start <span class="ot">&lt;-</span> war<span class="sc">$</span>date_start</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>date_start <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(date_start, <span class="at">format =</span> <span class="st">"%Y-%m-%d"</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>days_since_start <span class="ot">&lt;-</span> <span class="fu">as.numeric</span>(date_start <span class="sc">-</span> <span class="fu">min</span>(date_start))</span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>war<span class="sc">$</span>days_since_start <span class="ot">&lt;-</span> days_since_start</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>war<span class="sc">$</span>intertimes <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="cn">NA</span>, <span class="fu">diff</span>(war<span class="sc">$</span>days_since_start))</span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>intertimes_table <span class="ot">&lt;-</span> <span class="fu">table</span>(war<span class="sc">$</span>intertimes[<span class="sc">-</span><span class="dv">1</span>])</span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>intertimes <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(<span class="fu">names</span>(intertimes_table))</span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>n_total <span class="ot">&lt;-</span> <span class="fu">sum</span>(intertimes_table)</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>abs_freq <span class="ot">&lt;-</span> <span class="fu">as.vector</span>(intertimes_table)</span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>rel_freq <span class="ot">&lt;-</span> abs_freq<span class="sc">/</span>n_total</span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>cum_freq <span class="ot">&lt;-</span> <span class="fu">cumsum</span>(rel_freq)</span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>surv <span class="ot">&lt;-</span> (<span class="dv">1</span> <span class="sc">-</span> cum_freq) <span class="sc">+</span> rel_freq</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>intertimes_distr <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">intertimes =</span> intertimes, <span class="at">abs_freq =</span> abs_freq, </span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>                           <span class="at">rel_freq =</span> rel_freq, <span class="at">cum_freq =</span> cum_freq, <span class="at">surv =</span> surv)</span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(intertimes_distr, <span class="fu">aes</span>(<span class="at">x =</span> intertimes, <span class="at">y =</span> rel_freq)) <span class="sc">+</span></span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"density"</span>) <span class="sc">+</span> </span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>                <span class="fu">xlab</span>(<span class="st">"intertimes"</span>)</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="it_analysis_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(intertimes_distr, <span class="fu">aes</span>(<span class="at">x =</span> intertimes, <span class="at">y =</span> cum_freq)) <span class="sc">+</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">shape =</span> <span class="dv">1</span>) <span class="sc">+</span> </span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">0.2</span>) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"ecdf"</span>) <span class="sc">+</span> </span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"intertimes"</span>)</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="it_analysis_files/figure-html/unnamed-chunk-11-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(intertimes_distr, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">log</span>(intertimes), <span class="at">y =</span> <span class="fu">log</span>(surv))) <span class="sc">+</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">shape =</span> <span class="dv">1</span>) <span class="sc">+</span> </span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"log(survival function)"</span>) <span class="sc">+</span></span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"log(intertimes)"</span>) <span class="sc">+</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">linewidth =</span> <span class="fl">0.3</span>, <span class="at">color =</span> <span class="st">"red"</span>)</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>`geom_smooth()` using formula = 'y ~ x'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 1 row containing non-finite outside the scale range
+(`stat_smooth()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="it_analysis_files/figure-html/unnamed-chunk-11-3.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> war<span class="sc">$</span>intertimes[<span class="sc">-</span><span class="dv">1</span>]</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>exp_fit <span class="ot">&lt;-</span> MASS<span class="sc">::</span><span class="fu">fitdistr</span>(x, <span class="st">"exponential"</span>)</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>teor_distr <span class="ot">&lt;-</span> <span class="fu">pexp</span>(intertimes_distr<span class="sc">$</span>intertimes, <span class="at">rate =</span> exp_fit<span class="sc">$</span>estimate)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>intertimes_distr<span class="sc">$</span>exp <span class="ot">&lt;-</span> teor_distr</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(<span class="at">data =</span> intertimes_distr) <span class="sc">+</span> </span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">x =</span> exp, <span class="at">y =</span> cum_freq), <span class="at">pch =</span> <span class="dv">1</span>) <span class="sc">+</span> </span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">slope =</span> <span class="dv">1</span>)</span></code><button title="Copia negli appunti" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="it_analysis_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const onCopySuccess = function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copiato!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copiato!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
+  });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+<script src="it_analysis_files/libs/quarto-html/zenscroll-min.js"></script>
+</body></html>

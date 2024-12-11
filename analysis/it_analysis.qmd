@@ -1,0 +1,239 @@
+---
+title: "Storia statistica del conflitto Israelo-Palestinese dal 1989 ad oggi"
+authors:
+  - name: "Adragna R., Rampulla A., Tinervia G."
+lang: it
+format:
+  html:
+    toc: true
+    toc-expand: true
+    toc_title: "Contenuti"
+    toc-location: left
+    number-sections: true
+    smooth-scroll: true
+    theme: default
+---
+
+```{r, echo = FALSE, message = FALSE}
+# caricamento librerie
+if(!require(tidyverse)) install.packages("tidyverse")
+# if(!require(maps)) install.packages("maps")
+# if(!require(mapproj)) install.packages("mapproj")
+# if(!require(colorspace)) install.packages("colorspace")
+# if(!require(latex2exp)) install.packages("latex2exp")
+# if(!require(tmaptools)) install.packages("tmaptools")
+# if(!require(sf)) install.packages("sf")
+if(!require(stopp)) install.packages("stopp")
+if(!require(spatstat)) install.packages("spatstat")
+# if(!require(rnaturalearth)) install.packages("rnaturalearth")
+# if(!require(rnaturalearthdata)) install.packages("rnaturalearthdata")
+```
+
+# Uppsala Conflict Data Program
+
+L'Uppsala Conflict Data Program (UCDP) è un'iniziativa del *Uppsala University’s Department of Peace and Conflict Research*, volta a fornire dati completi, dettagliati dal punto di vista geografico e temporale sulla violenza organizzata a livello globale. L'UCDP Georeferenced Event Dataset (GED) copre gli eventi di violenza dal 1989 al 2023 e definisce un evento come *“un incidente di violenza letale che coinvolge attori organizzati, con almeno una vittima diretta, che si verifica in un momento e in un luogo specifici"*. La raccolta dei dati si basa su servizi di newswire globali, media locali, ONG e altre fonti specializzate, con rigorosi processi di validazione per garantire qualità e affidabilità.
+
+# Variabili presenti nel dataset
+
+L'UCDP Georeferenced Event Dataset rileva una vasta gamma di variabili per ogni evento, tra cui dettagli sugli attori coinvolti, coordinate spazio-temporali ed una stima del numero di vittime scaturite dall'evento, differenziando per vittime appartenenti ad una delle parti contrapposte e vittime civili.
+
+```{r}
+# Per il nostro lavoro, le variabili di interesse principali
+# sono le coordinate geografiche dell'evento, la data di inizio
+# dell'episodio di violenza e la stima più precisa del numero
+# totale di morti. 
+```
+
+# Conflitto Israelo-Palestinese
+
+Il conflitto israelo-palestinese è una delle dispute più longeve e complesse del mondo moderno, originato alla fine del XIX secolo con l'ascesa del sionismo e del nazionalismo arabo. La tensione si intensificò durante il mandato britannico in Palestina e culminò nel 1948 con la fondazione dello Stato di Israele, evento noto come Nakba per i palestinesi, che portò all'esodo di centinaia di migliaia di persone. Guerre successive (1948, 1967, 1973) consolidarono l'occupazione israeliana di territori come Cisgiordania, Gerusalemme Est e Gaza. I tentativi di pace, come gli Accordi di Oslo (1993), hanno avuto un successo limitato, e le tensioni permangono su questioni centrali: confini, rifugiati, sicurezza e lo status di Gerusalemme.
+
+Dal 1989, il conflitto ha visto periodi alterni di violenza e negoziati, come la Seconda Intifada (2000-2005), il ritiro israeliano da Gaza (2005) e la vittoria elettorale di Hamas (2006), che ha diviso i territori palestinesi. Ripetuti scontri armati tra Israele e Hamas (2008, 2012, 2014, 2021) hanno segnato la Striscia di Gaza, mentre in Cisgiordania l'espansione degli insediamenti e le incursioni militari hanno aggravato le tensioni.
+
+Le principali fazioni palestinesi includono:
+
+1.  **Hamas**: Movimento islamista e organizzazione politica-militare, controlla la Striscia di Gaza dal 2007. È nota per il suo rifiuto di riconoscere Israele e il suo impegno nella resistenza armata contro l'occupazione israeliana. È considerata un'organizzazione terroristica da Israele, Stati Uniti, Unione Europea e altri.
+
+2.  **PFLP** (Fronte Popolare per la Liberazione della Palestina): Gruppo marxista-leninista e laico, parte dell'Organizzazione per la Liberazione della Palestina (OLP). È noto per il suo passato di attentati e dirottamenti negli anni '60-'70. Il PFLP è critico sia nei confronti di Israele che dell'Autorità Palestinese.
+
+3.  **PFLP-GC** (Fronte Popolare per la Liberazione della Palestina – Comando Generale): Una scissione del PFLP, con una forte impronta militare. È attivo principalmente in Siria e Libano, con operazioni contro Israele.
+
+4.  **Fatah**: Il principale partito dell'OLP e al potere in Cisgiordania attraverso l'Autorità Palestinese (PNA). In passato, ha adottato tattiche di lotta armata, ma oggi sostiene principalmente negoziati con Israele.
+
+5.  **PIJ** (Jihad Islamica Palestinese): Gruppo islamista militante, più piccolo di Hamas ma ugualmente focalizzato sulla resistenza armata contro Israele. Si oppone a qualsiasi trattativa di pace.
+
+6.  **PNA** (Autorità Nazionale Palestinese): Il governo semi-autonomo in Cisgiordania creato dagli Accordi di Oslo nel 1994. Controllato principalmente da Fatah, la PNA è spesso in conflitto politico e talvolta militare con Israele.
+
+7.  **AMB** (Al-Aqsa Martyrs' Brigades): Ala militante legata a Fatah, nota per gli attacchi contro civili e militari israeliani durante la Seconda Intifada.
+
+8.  **PRC** (Comitati di Resistenza Popolare): Gruppo armato con base a Gaza, noto per attacchi contro Israele e cooperazioni con altre fazioni militanti come Hamas.
+
+Dal 2020, gli Accordi di Abramo hanno normalizzato i rapporti tra Israele e alcuni Stati arabi, ma non hanno migliorato la situazione con i palestinesi. Recenti escalation (2023-2024), incluso il conflitto tra Israele e Hamas, hanno portato a una crisi umanitaria senza precedenti a Gaza, aggravando ulteriormente lo stallo politico.
+
+# Il dataset considerato
+
+```{r, collapse = TRUE}
+load("IS_PAL.RData")
+war$side_b <- factor(war$side_b)
+war$adm_1 <- factor(war$adm_1)
+war$event_clarity <- factor(war$event_clarity)
+war$date_prec <- factor(war$date_prec)
+rmarkdown::paged_table(head(war, 10))
+```
+
+Il dataset da noi considerato riguarda soltanto gli eventi del conflitto Israelo-Palestinese avvenuti nel territorio Israeliano. Le variabili rilevanti per la nostra analisi sono:
+
+1.  **id**: Identificatore univoco per ogni evento nel dataset.
+
+2.  **year**: L'anno in cui si è verificato l'evento di violenza.
+
+3.  **dyad_name**: Il nome della diade di fazioni contrapposte coinvolte nell'evento (ad esempio, "Governo di Israele - Hamas").
+
+4.  **side_b**: La fazione coinvolta nell'evento, opposta al governo di Israele (può essere una delle fazioni palestinesi, come Hamas o Fatah).
+
+5.  **adm_1**: Livello amministrativo 1, che rappresenta la suddivisione regionale in cui è avvenuto l'evento (come una provincia o un distretto).
+
+6.  **latitude**: La latitudine geografica in cui l'evento si è verificato.
+
+7.  **longitude**: La longitudine geografica in cui l'evento si è verificato.
+
+8.  **event_clarity**: Indica il livello di chiarezza del report sull'evento, con valori che riflettono la certezza dei dettagli (ad esempio, se l'evento è stato chiaramente documentato o se ci sono incertezze).
+
+9.  **date_prec**: Precisione della data dell'evento, indicando se la data è certa o approssimativa.
+
+10. **date_start**: La data di inizio dell'evento di violenza.
+
+11. **date_end**: La data di fine dell'evento di violenza, se rilevante.
+
+12. **deaths_a**: Numero di morti tra le forze o i membri della fazione "a" (ad esempio, Israele).
+
+13. **deaths_b**: Numero di morti tra le forze o i membri della fazione "b" (ad esempio, Hamas o Fatah).
+
+14. **deaths_civilians**: Numero di morti tra i civili durante l'evento.
+
+15. **deaths_unknown**: Numero di morti la cui affiliazione o identità non è stata determinata.
+
+16. **best**: La stima migliore del numero totale di morti, basata sui dati disponibili.
+
+17. **high**: La stima più alta del numero di morti, indicando il massimo stimato.
+
+18. **low**: La stima più bassa del numero di morti, indicando il minimo stimato.
+
+# Qualità del dato
+
+**Quadro sinottico per variabili di qualità del dato**
+
+```{r}
+war$event_duration <- as.numeric((war$date_end - war$date_start)/(3600*24)) #durata dell'evento
+#la durata veniva restituita in secondi, l'ho trasformata in ore
+```
+
+```{r}
+hist(war$event_duration)
+hist(war$event_duration[war$event_duration!=0])
+```
+
+```{r}
+addmargins(table(war$event_clarity[war$event_duration!=0],
+                 war$event_duration[war$event_duration!=0]))
+#89 eventi su 4181 non si concludono nello stesso giorno, 52 degli 89 eventi si 
+    #sono conclusi il giorno successivo a quello di inizio
+#
+```
+
+```{r}
+#distribuzione di event_clarity condizionatamente a date_prec
+ggplot(data = war) + 
+    geom_bar(mapping = aes(x = event_clarity, fill = date_prec), position = "fill")
+```
+
+```{r}
+#morti per anno
+fatalities <- war |> 
+    group_by(year) |> 
+    summarise(fatalities_per_year = sum(best))
+
+ggplot(fatalities, aes(x = year, y = fatalities_per_year)) +
+    geom_line(color = "black", linewidth = 1) +  # Linea blu
+    geom_point(color = "red", size = 2) + # Punti rossi per enfatizzare i dati
+    labs(title = "Serie Storica dei morti per Anno",
+         x = "Anno",
+         y = "Fatalità") +
+    theme_minimal()
+```
+
+```{r}
+#densità di event_duration condizionata a event_clarity
+
+filtered_war <- war |> 
+    filter(event_duration!=0)
+
+ggplot(filtered_war, aes(x = event_duration, fill = event_clarity)) +
+    geom_density(alpha = 0.7) +
+    facet_wrap(~ event_clarity) +
+    labs(
+        title = "Distribuzione della densità della durata degli eventi per chiarezza",
+        x = "Durata dell'evento",
+        y = "Densità")
+```
+
+```{r}
+#distribuzione di event_duration condizionata a event_clarity
+
+ggplot(filtered_war, aes(x = event_duration, fill = event_clarity)) +
+    geom_bar(alpha = 0.7) +
+    facet_wrap(~ event_clarity)
+```
+
+# Analisi degli intertempi
+
+```{r}
+date_start <- war$date_start
+date_start <- as.Date(date_start, format = "%Y-%m-%d")
+days_since_start <- as.numeric(date_start - min(date_start))
+war$days_since_start <- days_since_start
+
+war$intertimes <- c(NA, diff(war$days_since_start))
+
+intertimes_table <- table(war$intertimes[-1])
+intertimes <- as.integer(names(intertimes_table))
+n_total <- sum(intertimes_table)
+abs_freq <- as.vector(intertimes_table)
+rel_freq <- abs_freq/n_total
+cum_freq <- cumsum(rel_freq)
+surv <- (1 - cum_freq) + rel_freq
+intertimes_distr <- data.frame(intertimes = intertimes, abs_freq = abs_freq, 
+                           rel_freq = rel_freq, cum_freq = cum_freq, surv = surv)
+
+
+ggplot(intertimes_distr, aes(x = intertimes, y = rel_freq)) +
+  geom_col() + ylab("density") + 
+                xlab("intertimes")
+  
+ggplot(intertimes_distr, aes(x = intertimes, y = cum_freq)) +
+  geom_point(shape = 1) + 
+  geom_line(linewidth = 0.2) + ylab("ecdf") + 
+  xlab("intertimes")
+
+
+ggplot(intertimes_distr, aes(x = log(intertimes), y = log(surv))) +
+  geom_point(shape = 1) + 
+  geom_line(linewidth = 0.2) +
+  ylab("log(survival function)") +
+  xlab("log(intertimes)") +
+  geom_smooth(method = "lm", se = FALSE, linewidth = 0.3, color = "red")
+```
+
+```{r}
+x <- war$intertimes[-1]
+exp_fit <- MASS::fitdistr(x, "exponential")
+teor_distr <- pexp(intertimes_distr$intertimes, rate = exp_fit$estimate)
+intertimes_distr$exp <- teor_distr
+
+ggplot(data = intertimes_distr) + 
+  geom_point(aes(x = exp, y = cum_freq), pch = 1) + 
+  geom_abline(intercept = 0, slope = 1)
+```
+
+
+
