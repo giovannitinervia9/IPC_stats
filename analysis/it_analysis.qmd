@@ -210,14 +210,44 @@ ggplot(intertimes_distr, aes(x = log(intertimes), y = log(surv))) +
 
 ```{r}
 x <- war$intertimes[-1]
-exp_fit <- MASS::fitdistr(x, "exponential")
-teor_distr <- pexp(intertimes_distr$intertimes, rate = exp_fit$estimate)
-intertimes_distr$exp <- teor_distr
+n <- length(x)
+lambda <- 1/mean(x)
+theoretical_quantiles <- qexp(ppoints(n), rate = lambda)
 
-ggplot(data = intertimes_distr) + 
-  geom_point(aes(x = exp, y = cum_freq), pch = 1) + 
-  geom_abline(intercept = 0, slope = 1)
+# Sort the observed data
+sorted_data <- sort(x)
+
+# Create the QQ plot
+qqplot(theoretical_quantiles, sorted_data,
+       main = "QQ Plot: Exponential Fit",
+       xlab = "Theoretical Quantiles",
+       ylab = "Sample Quantiles")
+abline(0, 1, col = "red")  # Add a reference line
 ```
+
+```{r}
+library(MASS)
+fit <- fitdistr(x, "Negative Binomial")
+
+# Extract the estimated parameters
+size <- fit$estimate["size"]  # Dispersion parameter
+mu <- fit$estimate["mu"]      # Mean parameter
+
+# Generate theoretical quantiles
+n <- length(x)
+theoretical_quantiles <- qnbinom(ppoints(n), size = size, mu = mu)
+
+# Sort the observed data
+sorted_data <- sort(x)
+
+# Create the QQ plot
+qqplot(theoretical_quantiles, sorted_data,
+       main = "QQ Plot: Negative Binomial Fit",
+       xlab = "Theoretical Quantiles",
+       ylab = "Sample Quantiles")
+abline(0, 1, col = "red")  # Add a reference line
+```
+
 
 
 ## Plot processo di punto
