@@ -65,8 +65,8 @@ head(min_distance_from_i)
 colnames(min_distance_from_i) <- c("nearest_pow", "dist_nearest_pow")
 write.csv(min_distance_from_i, "nearest_pow.csv")
 
-data <- data.frame(data, min_distance_from_i)
-write.csv(data, "IS_PAL.csv")
+data <- data.frame(data, min_distance_from_i)[,-1]
+write.csv(data, "IS_PAL.csv", row.names = F)
 
    
 
