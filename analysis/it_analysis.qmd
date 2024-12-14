@@ -188,24 +188,40 @@ cum_freq <- cumsum(rel_freq)
 surv <- (1 - cum_freq) + rel_freq
 intertimes_distr <- data.frame(intertimes = intertimes, abs_freq = abs_freq, 
                            rel_freq = rel_freq, cum_freq = cum_freq, surv = surv)
+```
 
-
+```{r}
 ggplot(intertimes_distr, aes(x = intertimes, y = rel_freq)) +
   geom_col() + ylab("density") + 
                 xlab("intertimes")
-  
+```
+
+```{r}  
 ggplot(intertimes_distr, aes(x = intertimes, y = cum_freq)) +
   geom_point(shape = 1) + 
   geom_line(linewidth = 0.2) + ylab("ecdf") + 
   xlab("intertimes")
+```
 
-
+```{r}
 ggplot(intertimes_distr, aes(x = log(intertimes), y = log(surv))) +
   geom_point(shape = 1) + 
   geom_line(linewidth = 0.2) +
   ylab("log(survival function)") +
   xlab("log(intertimes)") +
   geom_smooth(method = "lm", se = FALSE, linewidth = 0.3, color = "red")
+```
+
+```{r}
+ggplot(war, aes(x = days_since_start, y = intertimes)) + 
+  geom_point(pch = 1) + 
+  geom_text(
+    data = subset(war, intertimes > 150), # Filtra solo i punti con y > 200
+    aes(label = date_start),
+    hjust = -0.2, vjust = c(rep(-0.5, 4), -1.1, rep(-0.5, 2)), # Per posizionare meglio il testo
+    size = 2.3
+  )
+
 ```
 
 ```{r}
@@ -303,16 +319,23 @@ p1
 ```{r}
 w_isr <- read.csv("places_of_worship_israel.csv", sep = ",")[,-1]
 colnames(w_isr) <- c("x", "y", "id")
-```
 
-**CALCOLARE TUTTE LE DISTANZE TRA I PUNTI-EVENTO ED I LUOGHI DI CULTO E PER CIASCUN PUNTO EVENTO SELEZIONARE IL LUOGO DI CULTO CON DISTANZA MINIMA**
-
-```{r}
 w_isr <- w_isr[which(w_isr$id %in% unique(war$nearest_pow)),]
 
 w_isr_sf <- st_as_sf(w_isr, coords = c("y", "x"), crs = 4326)
 
 p1 + geom_sf(data = w_isr_sf, size = 0.7, alpha = 0.25, pch = 3) + labs(subtitle = "Black crosses are places of worship")
+```
+
+```{r}
+p_isr <- read.csv("political_places_israel.csv", sep = ",")[,-1]
+colnames(p_isr) <- c("x", "y", "id")
+
+# p_isr <- p_isr[which(p_isr$id %in% unique(war$nearest_pow)),]
+
+p_isr_sf <- st_as_sf(p_isr, coords = c("y", "x"), crs = 4326)
+
+p1 + geom_sf(data = p_isr_sf, size = 0.7, alpha = 0.2, pch = 3) + labs(subtitle = "Black crosses are government places")
 ```
 
 
