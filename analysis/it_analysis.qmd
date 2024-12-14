@@ -9,6 +9,7 @@ format:
     toc-expand: true
     toc_title: "Contenuti"
     toc-location: left
+    self-contained: true
     number-sections: true
     smooth-scroll: true
     theme: default
@@ -22,7 +23,8 @@ if(!require(tidyverse)) install.packages("tidyverse")
 # if(!require(colorspace)) install.packages("colorspace")
 # if(!require(latex2exp)) install.packages("latex2exp")
 # if(!require(tmaptools)) install.packages("tmaptools")
-# if(!require(sf)) install.packages("sf")
+if(!require(sf)) install.packages("sf")
+if(!require(sp)) install.packages("sp")
 if(!require(stopp)) install.packages("stopp")
 if(!require(spatstat)) install.packages("spatstat")
 # if(!require(rnaturalearth)) install.packages("rnaturalearth")
@@ -352,38 +354,57 @@ p1 + geom_sf(data = c_isr_sf, size = 0.7, alpha = 0.25, pch = 8) + labs(subtitle
 # spatstat
 
 ```{r}
-# # Carica il poligono di Israele (sf object)
-# conflicts_points <- data.frame(x = war$latitude, y = war$longitude)
-# 
-# conflicts_points <- st_as_sf(conflicts_points, coords = c("x", "y"))
-# 
-# # Assegna il CRS WGS84 (EPSG:4326)
-# #st_crs(conflicts_points) <- 4326
-# 
-# # israel shapefile
-# israel_polygon <- st_read("israel_palestine_combined.shp")
-# 
-# # Trasforma il poligono in un sistema di coordinate proiettate
-# israel_polygon_proj <- st_transform(israel_polygon, crs = 32633)
-# 
-# # Trasforma i punti in un sistema di coordinate proiettate
-# conflicts_points_proj <- st_transform(conflicts_points, crs = 32633)
-# 
-# israel_window <- as.owin(israel_polygon_proj)
-# 
-# coords <- st_coordinates(conflicts_points_proj)
-# 
-# # Crea il processo puntuale
-# conflicts_ppp <- ppp(
-#   x = coords[, 1],  # Coordinate x
-#   y = coords[, 2],  # Coordinate y
-#   window = israel_window  # Finestra di osservazione
-# )
-# 
-# # Verifica l'oggetto `ppp`
-# summary(conflicts_ppp)
+###########-------------#####
+# Correct coordinate order
+conflicts_points <- data.frame(x = war$longitude, y = war$latitude)
+
+# Create SF object with correct CRS
+conflicts_points_sf <- st_as_sf(conflicts_points, coords = c("x", "y"), crs = 4326)
+
+# Read shapefile
+israel_polygon <- st_read("israel_palestine_combined.shp")
+
+# Ensure both are in the same CRS before transformation
+# Check current CRS
+st_crs(conflicts_points_sf)
+st_crs(israel_polygon)
+
+# Optional: Ensure both are in WGS84 if they aren't already
+conflicts_points_sf <- st_transform(conflicts_points_sf, crs = st_crs(israel_polygon))
+
+# Project to a suitable UTM zone
+israel_polygon_proj <- st_transform(israel_polygon, crs = 32633)
+conflicts_points_proj <- st_transform(conflicts_points_sf, crs = 32633)
+
+# Check intersections
+intersected_points <- st_intersection(conflicts_points_proj, israel_polygon_proj)
+
+# Convert to ppp
+# Convert SF to SP first, which can sometimes be more robust
+conflicts_sp <- as(intersected_points, "Spatial")
+
+# Create window
+israel_window <- as.owin(israel_polygon_proj)
+
+# Create ppp
+conflicts_ppp <- ppp(
+  x = coordinates(conflicts_sp)[,1],
+  y = coordinates(conflicts_sp)[,2],
+  window = israel_window
+)
+plot(conflicts_ppp)
 
 ```
+
+```{r}
+mod <- ppm(conflicts_ppp, ~ poly(x, 2) + poly(y, 2))
+summary(mod)
+plot(predict(mod))
+plot(conflicts_ppp, add = T, pch = ".", cex = 1.5, alpha = 0.1, cols = "grey")
+plot(sqrt(density(conflicts_ppp)))
+plot(log(density(conflicts_ppp)))
+```
+
 
 
 
