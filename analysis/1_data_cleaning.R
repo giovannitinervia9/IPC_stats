@@ -19,7 +19,7 @@ date_start <- data$date_start
 date_start <- as.Date(date_start, format = "%Y-%m-%d")
 days_since_start <- as.numeric(date_start - min(date_start))
 data$days_since_start <- days_since_start
-plot(data$days_since_start)
+# plot(data$days_since_start)
 data$intertimes <- c(NA, diff(data$days_since_start))
 head(data)
 write.csv(data, "IS_PAL.csv")
