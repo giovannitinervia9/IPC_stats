@@ -58,9 +58,15 @@ days_since_nearest_heb_cal <- foreach(i = 1:nrow(data), .combine = rbind, .packa
 stopCluster(cl)
 
 rownames(days_since_nearest_heb_cal) <- NULL
-colnames(days_since_nearest_heb_cal) <- c("hebcal_id", "days_from_nearest_heb_cal", "days_from_nearest_heb_cal_signed")
+colnames(days_since_nearest_heb_cal) <- c("id_hebcal", "days_from_nearest_heb_cal", "days_from_nearest_heb_cal_signed")
 
 
-data <- cbind(data, days_since_nearest_heb_cal)
+write.csv(days_since_nearest_heb_cal, "5_nearest_hebcal.csv", row.names = FALSE)
 
-write.csv(data, "IS_PAL.csv", row.names = FALSE)
+
+
+
+
+
+
+

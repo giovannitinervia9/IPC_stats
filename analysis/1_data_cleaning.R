@@ -22,4 +22,4 @@ data$days_since_start <- days_since_start
 # plot(data$days_since_start)
 data$intertimes <- c(NA, diff(data$days_since_start))
 head(data)
-write.csv(data, "IS_PAL.csv")
+write.csv(data, "IS_PAL.csv", row.names = F)

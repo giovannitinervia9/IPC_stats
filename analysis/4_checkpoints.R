@@ -1,4 +1,7 @@
+# Pulisci l'ambiente
 rm(list = ls())
+
+# Carica i pacchetti necessari
 library(osmdata)
 library(sf)
 library(tidyverse)
@@ -6,33 +9,34 @@ library(tidyverse)
 # Definisci l'area geografica (esempio: Israele)
 area2 <- "Israel"
 
-# Query per luoghi di culto
-places_of_worship_i <- opq(bbox = area2) |>
-  add_osm_feature(key = "amenity", value = "place_of_worship") |>
+# Query per luoghi di rilevanza militare
+military_places <- opq(bbox = area2) |>
+  add_osm_feature(key = "military", value = c("checkpoint")) |>  # Punti di controllo
   osmdata_sf()
 
 # Estrai i dati dei punti (nodi)
-points2 <- places_of_worship_i$osm_points |>
-  select(name, geometry) |>
+military_points <- military_places$osm_points |>
+ select(name, geometry) |>
   mutate(Latitude = st_coordinates(geometry)[,2],
          Longitude = st_coordinates(geometry)[,1]) |>
   st_drop_geometry() # Rimuove la colonna geometrica, se non necessaria
 
-# Rimuovi i punti senza nome
-filtered_places2 <- points2 |>
-  filter(!is.na(name)) |>
-  select(Name = name, Latitude, Longitude)
 
-# Salvataggio dati in un csv
-rownames(filtered_places2) <- NULL
-filtered_places2$id <- 1:nrow(filtered_places2)
-write.csv(filtered_places2, "places_of_worship_israel.csv", row.names = FALSE)
+
+# Salva i dati in un CSV
+rownames(military_points) <- NULL
+military_points$id <- 1:nrow(military_points)
+write.csv(military_points, "military_checkpoints_israel.csv", row.names = FALSE)
+
+# Anteprima 
+head(military_points)
+
 
 #### filtraggio e merge con il dataset
-
-w_isr <- read.csv("places_of_worship_israel.csv")
+rm(list = ls())
+c_isr <- read.csv("military_checkpoints_israel.csv")
 data <- read.csv("IS_PAL.csv")
-xy_j <- as.matrix(w_isr[, c("Latitude", "Longitude")])
+xy_j <- as.matrix(c_isr[, c("Latitude", "Longitude")])
 
 
 library(foreach)
@@ -62,10 +66,6 @@ nrow(min_distance_from_i)
 rownames(min_distance_from_i) <- NULL
 min_distance_from_i <- as.data.frame(min_distance_from_i)
 head(min_distance_from_i)
-colnames(min_distance_from_i) <- c("id_nearest_pow", "dist_nearest_pow")
-write.csv(min_distance_from_i, "2_nearest_pow.csv", row.names = F)
-
-
-
-   
+colnames(min_distance_from_i) <- c("id_nearest_chp", "dist_nearest_chp")
+write.csv(min_distance_from_i, "4_nearest_chp.csv", row.names = F)
 

@@ -1,3 +1,4 @@
+rm(list = ls())
 i1 <- read.csv("isl_cal1.csv")
 i2 <- read.csv("isl_cal2.csv")
 
@@ -69,11 +70,9 @@ days_since_nearest_isl_cal <- foreach(i = 1:nrow(data), .combine = rbind, .packa
 stopCluster(cl)
 
 rownames(days_since_nearest_isl_cal) <- NULL
-colnames(days_since_nearest_isl_cal) <- c("isl_cal_id", "days_from_nearest_isl_cal", "days_from_nearest_isl_cal_signed")
+colnames(days_since_nearest_isl_cal) <- c("id_isl_cal", "days_from_nearest_isl_cal", "days_from_nearest_isl_cal_signed")
 
 
-data <- cbind(data, days_since_nearest_isl_cal)
-
-write.csv(data, "IS_PAL.csv", row.names = FALSE)
+write.csv(days_since_nearest_isl_cal, "6_nearest_islcal.csv", row.names = FALSE)
 
 

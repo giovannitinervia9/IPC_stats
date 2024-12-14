@@ -68,11 +68,10 @@ nrow(min_distance_from_i)
 rownames(min_distance_from_i) <- NULL
 min_distance_from_i <- as.data.frame(min_distance_from_i)
 head(min_distance_from_i)
-colnames(min_distance_from_i) <- c("nearest_gov", "dist_nearest_gov")
-write.csv(min_distance_from_i, "nearest_gov.csv")
+colnames(min_distance_from_i) <- c("id_nearest_gov", "dist_nearest_gov")
+write.csv(min_distance_from_i, "3_nearest_gov.csv", row.names = F)
 
-data <- data.frame(data, min_distance_from_i)[,-1]
-write.csv(data, "IS_PAL.csv", row.names = F)
+
 
 
 
