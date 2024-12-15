@@ -336,11 +336,11 @@ mod2 <- stppm(proc, ~ poly(x, 2) + poly(y, 2) + poly(t, 2) + dist_nearest_pow +
                 dist_nearest_gov + dist_nearest_chp + 
                 days_from_nearest_heb_cal + days_from_nearest_isl_cal,
               covs = covs, spatial.cov = T)
-mod2
+
 
 
 summary(mod2$mod_global)
 plot(mod2)
 
-resmod2 <- localdiag(proc, mod2$l)
+# resmod2 <- localdiag(proc, mod2$l)
 

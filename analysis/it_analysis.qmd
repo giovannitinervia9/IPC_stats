@@ -281,9 +281,7 @@ library(rnaturalearthdata)
 library(dplyr)
 
 df <- data.frame(x = war$longitude,
-                 y = war$latitude,
-                 t = war$days_since_start,
-                 side_b = war$side_b)
+                 y = war$latitude)
 
 # Load the world map
 world <- ne_countries(scale = "medium", returnclass = "sf")
@@ -306,15 +304,15 @@ df_sf <- st_as_sf(df, coords = c("x", "y"), crs = 4326)
 # Plot the data with the map
 
 p1 <- ggplot() +
-    geom_sf(data = region, fill = "lightgray", color = "black") +  # Region map
-    geom_sf(data = df_sf, color = "red", size = 0.5, alpha = 0.4) +  # Points from df
-    theme_minimal() +
-    coord_sf(xlim = c(region_bbox$xmin, region_bbox$xmax),
-             ylim = c(region_bbox$ymin, region_bbox$ymax),
-             expand = FALSE) +
-    labs(title = paste0("Conflict Events in Israel"),
-         x = "Longitude",
-         y = "Latitude")
+  geom_sf(data = region, fill = "lightgray", color = "black") +  # Region map
+  geom_sf(data = df_sf, color = "red", size = 0.5, alpha = 0.4) +  # Points from df
+  theme_minimal() +
+  coord_sf(xlim = c(region_bbox$xmin, region_bbox$xmax),
+           ylim = c(region_bbox$ymin, region_bbox$ymax),
+           expand = FALSE) +
+  labs(title = paste0("Conflict Events in Israel"),
+       x = "Longitude",
+       y = "Latitude")
 
 p1 
 ```
@@ -328,6 +326,8 @@ w_isr <- w_isr[which(w_isr$id %in% unique(war$id_nearest_pow)),]
 w_isr_sf <- st_as_sf(w_isr, coords = c("x", "y"), crs = 4326)
 
 p1 + geom_sf(data = w_isr_sf, size = 0.7, alpha = 0.3, pch = 3) + labs(subtitle = "Black crosses are places of worship (only nearest to war events)")
+
+
 ```
 
 ```{r}
@@ -339,6 +339,7 @@ colnames(p_isr) <- c("x", "y", "id")
 p_isr_sf <- st_as_sf(p_isr, coords = c("x", "y"), crs = 4326)
 
 p1 + geom_sf(data = p_isr_sf, size = 0.7, alpha = 0.3, pch = 4) + labs(subtitle = "Black `x` are government places")
+
 ```
 
 ```{r}
@@ -350,6 +351,7 @@ colnames(c_isr) <- c("x", "y", "id")
 c_isr_sf <- st_as_sf(c_isr, coords = c("x", "y"), crs = 4326)
 
 p1 + geom_sf(data = c_isr_sf, size = 0.7, alpha = 0.25, pch = 8) + labs(subtitle = "Black `*` are military checkpoints")
+
 ```
 
 # spatstat
@@ -396,6 +398,7 @@ plot(conflicts_ppp)
 
 ```
 
+# Poisson point process
 ```{r}
 mod <- ppm(conflicts_ppp, ~ poly(x, 2) + poly(y, 2))
 summary(mod)
@@ -403,6 +406,74 @@ plot(predict(mod))
 plot(conflicts_ppp, add = T, pch = ".", cex = 1.5, alpha = 0.1, cols = "grey")
 plot(sqrt(density(conflicts_ppp)))
 plot(log(density(conflicts_ppp)))
+```
+
+# Spatio temporal Poisson point process
+
+## Senza covariate
+```{r}
+#stopp
+library(stopp)
+conflicts_points <- data.frame(x = war$longitude, y = war$latitude, t = war$days_since_start)
+proc <- stp(conflicts_points)
+mod <- stppm(proc, ~ poly(x, 2) + poly(y, 2) + poly(t, 2))
+summary(mod$mod_global)
+
+```
+
+## Con covariate
+
+```{r}
+# models with covariates
+covariates <- c("dist_nearest_pow", "dist_nearest_gov", "dist_nearest_chp",
+                "days_from_nearest_heb_cal", "days_from_nearest_isl_cal")
+
+if(file.exists("covs.rds")){
+  covs <- readRDS("covs.rds")
+} else {
+  
+  df_cov <- war[, which(colnames(war) %in% covariates)]
+  
+  df_list <- list(cov1 = cbind(conflicts_points, df_cov[, 1]),
+                  cov2 = cbind(conflicts_points, df_cov[, 2]),
+                  cov3 = cbind(conflicts_points, df_cov[, 3]),
+                  cov4 = cbind(conflicts_points, df_cov[, 4]),
+                  cov5 = cbind(conflicts_points, df_cov[, 5]))
+  
+  
+  library(foreach)
+  library(doParallel)
+  
+  # Set up the parallel backend
+  num_cores <- min(length(covariates), round(parallel::detectCores()/2) + 1)
+  cl <- makeCluster(num_cores)
+  registerDoParallel(cl)
+  
+  system.time({
+    covs <- foreach(i = 1:length(covariates), .packages = "stopp") %dopar% {
+      stcov(df_list[[i]], names = covariates[i])
+    }
+  })
+  
+  names(covs) <- covariates
+  
+  stopCluster(cl)
+  
+  saveRDS(covs, file = "covs.rds")
+  
+}
+
+
+
+mod2 <- stppm(proc, ~ poly(x, 2) + poly(y, 2) + poly(t, 2) + dist_nearest_pow +
+                dist_nearest_gov + dist_nearest_chp + 
+                days_from_nearest_heb_cal + days_from_nearest_isl_cal,
+              covs = covs, spatial.cov = T)
+
+
+
+summary(mod2$mod_global)
+plot(mod2)
 ```
 
 
