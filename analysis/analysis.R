@@ -1,5 +1,3 @@
-rm(list = ls())
-
 # caricamento librerie
 if(!require(tidyverse)) install.packages("tidyverse")
 # if(!require(maps)) install.packages("maps")
@@ -7,7 +5,8 @@ if(!require(tidyverse)) install.packages("tidyverse")
 # if(!require(colorspace)) install.packages("colorspace")
 # if(!require(latex2exp)) install.packages("latex2exp")
 # if(!require(tmaptools)) install.packages("tmaptools")
-# if(!require(sf)) install.packages("sf")
+if(!require(sf)) install.packages("sf")
+if(!require(sp)) install.packages("sp")
 if(!require(stopp)) install.packages("stopp")
 if(!require(spatstat)) install.packages("spatstat")
 # if(!require(rnaturalearth)) install.packages("rnaturalearth")
@@ -19,12 +18,20 @@ war$side_b <- factor(war$side_b)
 war$adm_1 <- factor(war$adm_1)
 war$event_clarity <- factor(war$event_clarity)
 war$date_prec <- factor(war$date_prec)
-#rmarkdown::paged_table(head(war, 10))
 
+#### ANALISI DESCRITTIVE ####
 
 hist(war$event_duration, main = "Distribuzione della durata degli eventi", xlab = "durata degli eventi")
 hist(war$event_duration[war$event_duration!=0], main = "Distribuzione della durata degli eventi 
      (tolti quelli con durata 0)", xlab = "durata degli eventi")
+
+
+
+addmargins(table(war$event_clarity[war$event_duration!=0],
+                 war$event_duration[war$event_duration!=0]))
+#89 eventi su 4181 non si concludono nello stesso giorno, 52 degli 89 eventi si 
+#sono conclusi il giorno successivo a quello di inizio
+
 
 
 #distribuzione di event_clarity condizionatamente a date_prec
@@ -32,18 +39,25 @@ ggplot(data = war) +
   geom_bar(mapping = aes(x = event_clarity, fill = date_prec), position = "fill")
 
 
+
+
+
+
 #morti per anno
 fatalities <- war |> 
   group_by(year) |> 
-  summarise(fatalities_per_year = sum(best))
+  summarise(fatalities_per_year = sum(best),
+            civilian_deaths_per_year = sum(deaths_civilians))
 
 ggplot(fatalities, aes(x = year, y = fatalities_per_year)) +
-  geom_line(color = "black", linewidth = 1) +  # Linea blu
+  geom_line(color = "black", linewidth = 1) +  
   geom_point(color = "red", size = 2) + # Punti rossi per enfatizzare i dati
   labs(title = "Serie Storica dei morti per Anno",
        x = "Anno",
        y = "Fatalità") +
   theme_minimal()
+
+
 
 
 #densità di event_duration condizionata a event_clarity
@@ -58,7 +72,6 @@ ggplot(filtered_war, aes(x = event_duration, fill = event_clarity)) +
 
 
 
-
 intertimes_table <- table(war$intertimes[-1])
 intertimes <- as.integer(names(intertimes_table))
 n_total <- sum(intertimes_table)
@@ -68,8 +81,6 @@ cum_freq <- cumsum(rel_freq)
 surv <- (1 - cum_freq) + rel_freq
 intertimes_distr <- data.frame(intertimes = intertimes, abs_freq = abs_freq, 
                                rel_freq = rel_freq, cum_freq = cum_freq, surv = surv)
-
-
 
 
 ggplot(intertimes_distr, aes(x = intertimes, y = rel_freq)) +
@@ -84,14 +95,12 @@ ggplot(intertimes_distr, aes(x = intertimes, y = cum_freq)) +
 
 
 
-
 ggplot(intertimes_distr, aes(x = log(intertimes), y = log(surv))) +
   geom_point(shape = 1) + 
   geom_line(linewidth = 0.2) +
   ylab("log(survival function)") +
   xlab("log(intertimes)") +
   geom_smooth(method = "lm", se = FALSE, linewidth = 0.3, color = "red")
-
 
 
 ggplot(war, aes(x = days_since_start, y = intertimes)) + 
@@ -103,7 +112,7 @@ ggplot(war, aes(x = days_since_start, y = intertimes)) +
     size = 2.3
   )
 
-
+# ANALISI INTERTEMPI
 
 
 x <- war$intertimes[-1]
@@ -120,8 +129,6 @@ qqplot(theoretical_quantiles, sorted_data,
        xlab = "Theoretical Quantiles",
        ylab = "Sample Quantiles")
 abline(0, 1, col = "red")  # Add a reference line
-
-
 
 
 library(MASS)
@@ -146,6 +153,10 @@ qqplot(theoretical_quantiles, sorted_data,
 abline(0, 1, col = "red")  # Add a reference line
 
 
+#### PROCESSO DI PUNTO ####
+
+
+# PLOT #
 
 library(ggplot2)
 library(sf)
@@ -153,8 +164,8 @@ library(rnaturalearth)
 library(rnaturalearthdata)
 library(dplyr)
 
-df <- data.frame(x = war$latitude,
-                 y = war$longitude,
+df <- data.frame(x = war$longitude,
+                 y = war$latitude,
                  t = war$days_since_start,
                  side_b = war$side_b)
 
@@ -174,7 +185,7 @@ region_bbox <- st_bbox(c(
 region <- st_crop(world, region_bbox)
 
 # Convert df to an sf object
-df_sf <- st_as_sf(df, coords = c("y", "x"), crs = 4326)
+df_sf <- st_as_sf(df, coords = c("x", "y"), crs = 4326)
 
 # Plot the data with the map
 
@@ -197,14 +208,9 @@ colnames(w_isr) <- c("x", "y", "id")
 
 w_isr <- w_isr[which(w_isr$id %in% unique(war$id_nearest_pow)),]
 
-w_isr_sf <- st_as_sf(w_isr, coords = c("y", "x"), crs = 4326)
+w_isr_sf <- st_as_sf(w_isr, coords = c("x", "y"), crs = 4326)
 
 p1 + geom_sf(data = w_isr_sf, size = 0.7, alpha = 0.3, pch = 3) + labs(subtitle = "Black crosses are places of worship (only nearest to war events)")
-
-
-
-
-
 
 
 p_isr <- read.csv("political_places_israel.csv", sep = ",")[,-1]
@@ -212,23 +218,26 @@ colnames(p_isr) <- c("x", "y", "id")
 
 # p_isr <- p_isr[which(p_isr$id %in% unique(war$id_nearest_pow)),]
 
-p_isr_sf <- st_as_sf(p_isr, coords = c("y", "x"), crs = 4326)
+p_isr_sf <- st_as_sf(p_isr, coords = c("x", "y"), crs = 4326)
 
 p1 + geom_sf(data = p_isr_sf, size = 0.7, alpha = 0.3, pch = 4) + labs(subtitle = "Black `x` are government places")
 
 
-c_isr <- read.csv("political_places_israel.csv", sep = ",")[,-1]
+
+c_isr <- read.csv("military_checkpoints_israel.csv", sep = ",")[,-1]
 colnames(c_isr) <- c("x", "y", "id")
 
 # c_isr <- c_isr[which(c_isr$id %in% unique(war$nearest_pow)),]
 
-c_isr_sf <- st_as_sf(c_isr, coords = c("y", "x"), crs = 4326)
+c_isr_sf <- st_as_sf(c_isr, coords = c("x", "y"), crs = 4326)
 
 p1 + geom_sf(data = c_isr_sf, size = 0.7, alpha = 0.25, pch = 8) + labs(subtitle = "Black `*` are military checkpoints")
 
 
-###########-------------#####
-# Correct coordinate order
+
+#### SPATSTAT ####
+
+
 conflicts_points <- data.frame(x = war$longitude, y = war$latitude)
 
 # Create SF object with correct CRS
@@ -266,6 +275,7 @@ conflicts_ppp <- ppp(
   window = israel_window
 )
 plot(conflicts_ppp)
+
 
 mod <- ppm(conflicts_ppp, ~ poly(x, 2) + poly(y, 2))
 summary(mod)

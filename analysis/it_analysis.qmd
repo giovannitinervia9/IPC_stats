@@ -155,10 +155,11 @@ ggplot(data = war) +
 #morti per anno
 fatalities <- war |> 
     group_by(year) |> 
-    summarise(fatalities_per_year = sum(best))
+    summarise(fatalities_per_year = sum(best),
+              civilian_deaths_per_year = sum(deaths_civilians))
 
 ggplot(fatalities, aes(x = year, y = fatalities_per_year)) +
-    geom_line(color = "black", linewidth = 1) +  # Linea blu
+    geom_line(color = "black", linewidth = 1) +  
     geom_point(color = "red", size = 2) + # Punti rossi per enfatizzare i dati
     labs(title = "Serie Storica dei morti per Anno",
          x = "Anno",
@@ -279,8 +280,8 @@ library(rnaturalearth)
 library(rnaturalearthdata)
 library(dplyr)
 
-df <- data.frame(x = war$latitude,
-                 y = war$longitude,
+df <- data.frame(x = war$longitude,
+                 y = war$latitude,
                  t = war$days_since_start,
                  side_b = war$side_b)
 
@@ -300,7 +301,7 @@ region_bbox <- st_bbox(c(
 region <- st_crop(world, region_bbox)
 
 # Convert df to an sf object
-df_sf <- st_as_sf(df, coords = c("y", "x"), crs = 4326)
+df_sf <- st_as_sf(df, coords = c("x", "y"), crs = 4326)
 
 # Plot the data with the map
 
@@ -324,7 +325,7 @@ colnames(w_isr) <- c("x", "y", "id")
 
 w_isr <- w_isr[which(w_isr$id %in% unique(war$id_nearest_pow)),]
 
-w_isr_sf <- st_as_sf(w_isr, coords = c("y", "x"), crs = 4326)
+w_isr_sf <- st_as_sf(w_isr, coords = c("x", "y"), crs = 4326)
 
 p1 + geom_sf(data = w_isr_sf, size = 0.7, alpha = 0.3, pch = 3) + labs(subtitle = "Black crosses are places of worship (only nearest to war events)")
 ```
@@ -335,18 +336,18 @@ colnames(p_isr) <- c("x", "y", "id")
 
 # p_isr <- p_isr[which(p_isr$id %in% unique(war$id_nearest_pow)),]
 
-p_isr_sf <- st_as_sf(p_isr, coords = c("y", "x"), crs = 4326)
+p_isr_sf <- st_as_sf(p_isr, coords = c("x", "y"), crs = 4326)
 
 p1 + geom_sf(data = p_isr_sf, size = 0.7, alpha = 0.3, pch = 4) + labs(subtitle = "Black `x` are government places")
 ```
 
 ```{r}
-c_isr <- read.csv("political_places_israel.csv", sep = ",")[,-1]
+c_isr <- read.csv("military_checkpoints_israel.csv", sep = ",")[,-1]
 colnames(c_isr) <- c("x", "y", "id")
 
 # c_isr <- c_isr[which(c_isr$id %in% unique(war$nearest_pow)),]
 
-c_isr_sf <- st_as_sf(c_isr, coords = c("y", "x"), crs = 4326)
+c_isr_sf <- st_as_sf(c_isr, coords = c("x", "y"), crs = 4326)
 
 p1 + geom_sf(data = c_isr_sf, size = 0.7, alpha = 0.25, pch = 8) + labs(subtitle = "Black `*` are military checkpoints")
 ```
@@ -355,7 +356,6 @@ p1 + geom_sf(data = c_isr_sf, size = 0.7, alpha = 0.25, pch = 8) + labs(subtitle
 
 ```{r}
 ###########-------------#####
-# Correct coordinate order
 conflicts_points <- data.frame(x = war$longitude, y = war$latitude)
 
 # Create SF object with correct CRS

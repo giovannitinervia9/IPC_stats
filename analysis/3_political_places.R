@@ -23,7 +23,7 @@ political_points <- political_places$osm_points |>
 # Rimuovi i punti senza nome
 filtered_political <- political_points |>
   filter(!is.na(name)) |>
-  select(Name = name, Latitude, Longitude)
+  select(Name = name, Longitude, Latitude)
 
 # Salva i dati in un CSV
 rownames(filtered_political) <- NULL
@@ -38,7 +38,7 @@ head(filtered_political)
 
 p_isr <- read.csv("political_places_israel.csv")
 data <- read.csv("IS_PAL.csv")
-xy_j <- as.matrix(p_isr[, c("Latitude", "Longitude")])
+xy_j <- as.matrix(p_isr[, c("Longitude", "Latitude")])
 
 
 library(foreach)
@@ -52,7 +52,7 @@ registerDoParallel(cl)
 # Parallel computation with foreach
 min_distance_from_i <- foreach(i = 1:nrow(data), .combine = rbind, .packages = "base") %dopar% {
   # Extract coordinates for the i-th row of 'data'
-  xy_i <- as.numeric(data[i, c("latitude", "longitude")])
+  xy_i <- as.numeric(data[i, c("longitude", "latitude")])
   
   distance_from_i <- apply(sweep(xy_j, 2, xy_i, "-"), 1, function(x) sum(sqrt(x^2)))
   

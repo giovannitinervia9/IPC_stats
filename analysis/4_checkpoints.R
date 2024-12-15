@@ -26,6 +26,7 @@ military_points <- military_places$osm_points |>
 # Salva i dati in un CSV
 rownames(military_points) <- NULL
 military_points$id <- 1:nrow(military_points)
+military_points <- military_points[, c("name", "Longitude", "Latitude", "id")]
 write.csv(military_points, "military_checkpoints_israel.csv", row.names = FALSE)
 
 # Anteprima 
@@ -36,7 +37,7 @@ head(military_points)
 rm(list = ls())
 c_isr <- read.csv("military_checkpoints_israel.csv")
 data <- read.csv("IS_PAL.csv")
-xy_j <- as.matrix(c_isr[, c("Latitude", "Longitude")])
+xy_j <- as.matrix(c_isr[, c("Longitude", "Latitude")])
 
 
 library(foreach)
@@ -50,7 +51,7 @@ registerDoParallel(cl)
 # Parallel computation with foreach
 min_distance_from_i <- foreach(i = 1:nrow(data), .combine = rbind, .packages = "base") %dopar% {
   # Extract coordinates for the i-th row of 'data'
-  xy_i <- as.numeric(data[i, c("latitude", "longitude")])
+  xy_i <- as.numeric(data[i, c("longitude", "latitude")])
   
   distance_from_i <- apply(sweep(xy_j, 2, xy_i, "-"), 1, function(x) sum(sqrt(x^2)))
   
