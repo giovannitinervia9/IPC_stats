@@ -1,3 +1,4 @@
+rm(list = ls())
 # caricamento librerie
 if(!require(tidyverse)) install.packages("tidyverse")
 # if(!require(maps)) install.packages("maps")
@@ -165,9 +166,7 @@ library(rnaturalearthdata)
 library(dplyr)
 
 df <- data.frame(x = war$longitude,
-                 y = war$latitude,
-                 t = war$days_since_start,
-                 side_b = war$side_b)
+                 y = war$latitude)
 
 # Load the world map
 world <- ne_countries(scale = "medium", returnclass = "sf")
@@ -283,3 +282,65 @@ plot(predict(mod))
 plot(conflicts_ppp, add = T, pch = ".", cex = 1.5, alpha = 0.1, cols = "grey")
 plot(sqrt(density(conflicts_ppp)))
 plot(log(density(conflicts_ppp)))
+
+#### stopp ####
+library(stopp)
+conflicts_points <- data.frame(x = war$longitude, y = war$latitude, t = war$days_since_start)
+proc <- stp(conflicts_points)
+mod <- stppm(proc, ~ poly(x, 2) + poly(y, 2) + poly(t, 2))
+summary(mod$mod_global)
+
+
+# models with covariates
+covariates <- c("dist_nearest_pow", "dist_nearest_gov", "dist_nearest_chp",
+                "days_from_nearest_heb_cal", "days_from_nearest_isl_cal")
+
+if(file.exists("covs.rds")){
+  covs <- readRDS("covs.rds")
+} else {
+  
+  df_cov <- war[, which(colnames(war) %in% covariates)]
+  
+  df_list <- list(cov1 = cbind(conflicts_points, df_cov[, 1]),
+                  cov2 = cbind(conflicts_points, df_cov[, 2]),
+                  cov3 = cbind(conflicts_points, df_cov[, 3]),
+                  cov4 = cbind(conflicts_points, df_cov[, 4]),
+                  cov5 = cbind(conflicts_points, df_cov[, 5]))
+  
+  
+  library(foreach)
+  library(doParallel)
+  
+  # Set up the parallel backend
+  num_cores <- min(length(covariates), round(parallel::detectCores()/2) + 1)
+  cl <- makeCluster(num_cores)
+  registerDoParallel(cl)
+  
+  system.time({
+    covs <- foreach(i = 1:length(covariates), .packages = "stopp") %dopar% {
+      stcov(df_list[[i]], names = covariates[i])
+    }
+  })
+  
+  names(covs) <- covariates
+  
+  stopCluster(cl)
+  
+  saveRDS(covs, file = "covs.rds")
+  
+}
+
+
+
+mod2 <- stppm(proc, ~ poly(x, 2) + poly(y, 2) + poly(t, 2) + dist_nearest_pow +
+                dist_nearest_gov + dist_nearest_chp + 
+                days_from_nearest_heb_cal + days_from_nearest_isl_cal,
+              covs = covs, spatial.cov = T)
+mod2
+
+
+summary(mod2$mod_global)
+plot(mod2)
+
+resmod2 <- localdiag(proc, mod2$l)
+
