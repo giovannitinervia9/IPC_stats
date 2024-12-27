@@ -75,4 +75,3 @@ colnames(days_since_nearest_isl_cal) <- c("id_isl_cal", "days_from_nearest_isl_c
 
 write.csv(days_since_nearest_isl_cal, "6_nearest_islcal.csv", row.names = FALSE)
 
-

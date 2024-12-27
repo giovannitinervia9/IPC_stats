@@ -25,6 +25,20 @@ filtered_political <- political_points |>
   filter(!is.na(name)) |>
   select(Name = name, Longitude, Latitude)
 
+
+# Conversione da gradi a metri e kilometri
+library(sf)
+datasf <- st_as_sf(filtered_political, coords = c("Longitude", "Latitude"),
+                   crs = 4326)
+datam <- st_transform(datasf, crs = 32633)
+set.seed(123)
+datakm <- st_coordinates(datam)/1000
+datakm <- as.data.frame(datakm)
+colnames(datakm) <- c("x", "y")
+
+filtered_political <- data.frame(filtered_political, datakm)
+
+head(filtered_political)
 # Salva i dati in un CSV
 rownames(filtered_political) <- NULL
 filtered_political$id <- 1:nrow(filtered_political)
@@ -38,7 +52,7 @@ head(filtered_political)
 
 p_isr <- read.csv("political_places_israel.csv")
 data <- read.csv("IS_PAL.csv")
-xy_j <- as.matrix(p_isr[, c("Longitude", "Latitude")])
+xy_j <- as.matrix(p_isr[, c("x", "y")])
 
 
 library(foreach)
@@ -52,7 +66,7 @@ registerDoParallel(cl)
 # Parallel computation with foreach
 min_distance_from_i <- foreach(i = 1:nrow(data), .combine = rbind, .packages = "base") %dopar% {
   # Extract coordinates for the i-th row of 'data'
-  xy_i <- as.numeric(data[i, c("longitude", "latitude")])
+  xy_i <- as.numeric(data[i, c("x", "y")])
   
   distance_from_i <- apply(sweep(xy_j, 2, xy_i, "-"), 1, function(x) sum(sqrt(x^2)))
   

@@ -67,7 +67,7 @@ filtered_war <- war |>
   filter(event_duration!=0)
 #distribuzione di event_duration condizionata a event_clarity
 
-ggplot(filtered_war, aes(x = event_duration, fill = event_clarity)) +
+ggplot(filtered_war, aes(x = factor(event_duration), fill = event_clarity)) +
   geom_bar(alpha = 0.7) +
   facet_wrap(~ event_clarity)
 
@@ -235,30 +235,34 @@ p1 + geom_sf(data = c_isr_sf, size = 0.7, alpha = 0.25, pch = 8) + labs(subtitle
 
 
 #### SPATSTAT ####
-
-
-conflicts_points <- data.frame(x = war$longitude, y = war$latitude)
+conflicts_points <- data.frame(x = war$x, y = war$y)
 
 # Create SF object with correct CRS
-conflicts_points_sf <- st_as_sf(conflicts_points, coords = c("x", "y"), crs = 4326)
+conflicts_points_sf <- st_as_sf(conflicts_points, coords = c("x", "y"), 
+                                crs = 32633)
 
-# Read shapefile
+#### LETTURA SHAPEFILE ISRAELE ####
+library(sf)
+# Leggi lo shapefile
 israel_polygon <- st_read("israel_palestine_combined.shp")
 
-# Ensure both are in the same CRS before transformation
-# Check current CRS
-st_crs(conflicts_points_sf)
+# Verifica il sistema di coordinate originale
 st_crs(israel_polygon)
 
-# Optional: Ensure both are in WGS84 if they aren't already
-conflicts_points_sf <- st_transform(conflicts_points_sf, crs = st_crs(israel_polygon))
-
-# Project to a suitable UTM zone
+# Trasforma il sistema di coordinate in UTM (metri)
 israel_polygon_proj <- st_transform(israel_polygon, crs = 32633)
-conflicts_points_proj <- st_transform(conflicts_points_sf, crs = 32633)
+conflict_points_proj <- st_transform(conflicts_points_sf, crs = 32633)
+
+# Riscalare in chilometri dividendo per 1000
+israel_polygon_proj_km <- israel_polygon_proj
+st_geometry(israel_polygon_proj_km) <- st_geometry(israel_polygon_proj) / 1000
+israel_polygon_proj <- israel_polygon_proj_km
+# Aggiorna il CRS dopo la riscalatura (CRS personalizzato o rimuovi il CRS)
+st_crs(israel_polygon_proj_km) <- NA
+st_crs(conflict_points_proj) <- NA
 
 # Check intersections
-intersected_points <- st_intersection(conflicts_points_proj, israel_polygon_proj)
+intersected_points <- st_intersection(conflict_points_proj, israel_polygon_proj)
 
 # Convert to ppp
 # Convert SF to SP first, which can sometimes be more robust
@@ -274,22 +278,32 @@ conflicts_ppp <- ppp(
   window = israel_window
 )
 plot(conflicts_ppp)
-
+axis(1); axis(2)
 
 mod <- ppm(conflicts_ppp, ~ poly(x, 2) + poly(y, 2))
-summary(mod)
+mod
 plot(predict(mod))
-plot(conflicts_ppp, add = T, pch = ".", cex = 1.5, alpha = 0.1, cols = "grey")
+plot(conflicts_ppp, add = T, pch = ".", cex = 1.5, alpha = 0.05, cols = "grey")
 plot(sqrt(density(conflicts_ppp)))
 plot(log(density(conflicts_ppp)))
 
 #### stopp ####
 library(stopp)
-conflicts_points <- data.frame(x = war$longitude, y = war$latitude, t = war$days_since_start)
+library(mgcv)
+library(spatstat)
+library(stpp)
+library(colormap)
+source("funzioni nuove e internals.R")
+W <- israel_window
+conflicts_points <- data.frame(x = war$x, y = war$y, t = war$days_since_start)
 proc <- stp(conflicts_points)
-mod <- stppm(proc, ~ poly(x, 2) + poly(y, 2) + poly(t, 2))
+mod <- stppm(X = proc,
+             formula = ~ poly(x, 2) + poly(y, 2) + poly(t, 2),
+             W = W)
 summary(mod$mod_global)
 
+# scaler = c("silverman", "IQR", "sd", "var")
+plot.stppm(mod, W = W, scaler = "sd", do.points = F)
 
 # models with covariates
 covariates <- c("dist_nearest_pow", "dist_nearest_gov", "dist_nearest_chp",
@@ -343,4 +357,10 @@ summary(mod2$mod_global)
 plot(mod2)
 
 # resmod2 <- localdiag(proc, mod2$l)
+
+#### LOG GAUSSIAN COX 
+modl <- stlgcppm(X = proc, formula = x + y + t, W = W)
+
+
+
 

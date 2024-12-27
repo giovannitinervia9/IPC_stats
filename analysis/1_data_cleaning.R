@@ -8,14 +8,28 @@ ged241 <- readRDS("ged241.rds")
 data <- ged241 |> 
   filter(conflict_name == "Israel: Palestine" & country == "Israel") |> 
   select(id, year, side_b, adm_1, longitude, latitude, event_clarity, date_prec,
-         date_start, date_end, deaths_a, deaths_b, deaths_civilians,
-         deaths_unknown, best)
+         where_prec, date_start, date_end, deaths_a, deaths_b, deaths_civilians,
+         deaths_unknown, best) |> 
+  filter(date_prec < 4 & where_prec < 3)
+# date_prec = 3 -> week known
+# where_prec < 2 -> radius of 25 km
 
+table(data$date_prec, data$where_prec) |> prop.table()
+
+
+# conversione da gradi a metri
+library(sf)
+datasf <- st_as_sf(data, coords = c("longitude", "latitude"),
+                   crs = 4326)
+datam <- st_transform(datasf, crs = 32633)
 set.seed(123)
-data$longitude <- data$longitude + rnorm(nrow(data), 0, 0.01)
-set.seed(124)
-data$latitude <- data$latitude + rnorm(nrow(data), 0, 0.01)
-data <- data[order(data$date_start, data$longitude, data$latitude), ]
+datakm <- (st_coordinates(datam) + rnorm(nrow(data), 0, 1))/1000
+datakm <- as.data.frame(datakm)
+colnames(datakm) <- c("x", "y")
+
+data <- data.frame(data, datakm)
+
+data <- data[order(data$date_start, data$x, data$y), ]
 
 data$event_duration <- as.numeric((data$date_end - data$date_start)/(3600*24))
 

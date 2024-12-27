@@ -22,11 +22,23 @@ military_points <- military_places$osm_points |>
   st_drop_geometry() # Rimuove la colonna geometrica, se non necessaria
 
 
+# Conversione da gradi a metri e kilometri
+library(sf)
+datasf <- st_as_sf(military_points, coords = c("Longitude", "Latitude"),
+                   crs = 4326)
+datam <- st_transform(datasf, crs = 32633)
+set.seed(123)
+datakm <- st_coordinates(datam)/1000
+datakm <- as.data.frame(datakm)
+colnames(datakm) <- c("x", "y")
+
+military_points <- data.frame(military_points, datakm)
+
 
 # Salva i dati in un CSV
 rownames(military_points) <- NULL
 military_points$id <- 1:nrow(military_points)
-military_points <- military_points[, c("name", "Longitude", "Latitude", "id")]
+military_points <- military_points[, c("name", "Longitude", "Latitude", "id", "x", "y")]
 write.csv(military_points, "military_checkpoints_israel.csv", row.names = FALSE)
 
 # Anteprima 
@@ -37,8 +49,8 @@ head(military_points)
 rm(list = ls())
 c_isr <- read.csv("military_checkpoints_israel.csv")
 data <- read.csv("IS_PAL.csv")
-xy_j <- as.matrix(c_isr[, c("Longitude", "Latitude")])
-
+xy_j <- as.matrix(c_isr[, c("x", "y")])
+head(c_isr)
 
 library(foreach)
 library(doParallel)
@@ -51,7 +63,7 @@ registerDoParallel(cl)
 # Parallel computation with foreach
 min_distance_from_i <- foreach(i = 1:nrow(data), .combine = rbind, .packages = "base") %dopar% {
   # Extract coordinates for the i-th row of 'data'
-  xy_i <- as.numeric(data[i, c("longitude", "latitude")])
+  xy_i <- as.numeric(data[i, c("x", "y")])
   
   distance_from_i <- apply(sweep(xy_j, 2, xy_i, "-"), 1, function(x) sum(sqrt(x^2)))
   
