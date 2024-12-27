@@ -349,18 +349,18 @@ if(file.exists("covs.rds")){
 mod2 <- stppm(proc, ~ poly(x, 2) + poly(y, 2) + poly(t, 2) + dist_nearest_pow +
                 dist_nearest_gov + dist_nearest_chp + 
                 days_from_nearest_heb_cal + days_from_nearest_isl_cal,
-              covs = covs, spatial.cov = T)
+              covs = covs, spatial.cov = T, W = W)
 
 
 
 summary(mod2$mod_global)
-plot(mod2)
+plot.stppm(x = mod2, W = W, scaler = "sd", do.points = F)
 
 # resmod2 <- localdiag(proc, mod2$l)
 
 #### LOG GAUSSIAN COX 
-modl <- stlgcppm(X = proc, formula = x + y + t, W = W)
-
-
-
-
+modl <- stlgcppm(X = proc, formula = ~ poly(x, 2) + poly(y, 2) + poly(t, 2), W = W,
+                 cov = "separable")
+plot.stppm(modl, W = W, scaler = "sd", do.points = F)
+g_diag_l <- globaldiag(proc, modl$l)
+plot(g_diag_l)

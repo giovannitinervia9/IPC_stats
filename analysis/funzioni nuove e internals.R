@@ -710,3 +710,75 @@ stlgcppm <- function (X, formula = ~1, W, verbose = TRUE, seed = NULL, cov = c("
   class(list.obj) <- "stlgcppm"
   return(list.obj)
 }
+
+
+interp.covariate <- function(X, dummy_points, covs, formula, parallel, interp,
+                             xx, xy, xt, ncores, verbose) {
+  dati.interpolati <- rbind(X[,1:3], dummy_points)
+  colnames(dati.interpolati) <- c("x", "y", "t")
+  
+  cc <- vector(length = length(covs))
+  for(ki in 1:length(covs)){
+    cc[ki] <- c(names(covs[[ki]]$df)[4])
+  } 
+  names(covs) <- cc
+  ff <- which(names(covs) %in% all.vars(formula)) 
+  covs <- covs[ff]                               
+  
+  for(k in names(covs)){  
+    kk <- which(names(covs)  == k)
+    if(verbose) {cat("Covariate", k, "\n")}
+    if(interp) {
+      covs0 <- covs[[k]]$df
+      colnames(covs0) <- c("x", "y", "t", names(covs[[k]]$df)[4])
+      if(parallel) {
+        on.exit({stopCluster(cl)}, add = TRUE, after = TRUE)
+        cl <- makeCluster(getOption("cl.cores", ncores))
+        clusterExport(cl = cl, c('distD'))
+        gu <- interpMin(data.frame(xx, xy, xt), covs0, parallel = TRUE, cl = cl)
+      } else {
+        gu <- interpMin(data.frame(xx, xy, xt), covs0, parallel = FALSE)}
+    } else {
+      df0 <- data.frame(covs0$x, covs0$y, covs0$t)
+      colnames(df0) <- c("xx", "xy", "xt")
+      covs0 <- covs[[k]]$df
+      colnames(covs0) <- c("x", "y", "t", names(covs[[k]])[4])
+      if(parallel) {
+        on.exit({stopCluster(cl)}, add = TRUE, after = TRUE)
+        cl <- makeCluster(getOption("cl.cores", ncores))
+        clusterExport(cl = cl, c('distD'))
+        gu <- interpMin(df0, covs0, parallel = TRUE, cl = cl)
+      } else {
+        gu <- interpMin(df0, covs0, parallel = FALSE)
+      }
+      gu <- c(gu, covs[[k]]$df[, 4])
+    }
+    dati.interpolati <- cbind(dati.interpolati, gu)
+    colnames(dati.interpolati)[3 + kk] <- k
+  }
+  return(dati.interpolati)
+}
+
+
+interpMin <- function(dati, covariate, parallel = parallel, cl = cl){
+  # dati e covariate sono due matrici con 3 colonne l'uno (x,y,z) e righe diverse
+  # colnames(dati)[1:3] <- c("xx", "xy", "xt")
+  # colnames(covariate)[1:3] <- c("x", "y", "z")
+  nV <- nrow(covariate)
+  dd <- if(parallel) {
+    parSapply(cl, 1:nV, function(i) distD(dati, covariate[i, ], d = 3))
+  } else {
+    sapply(1:nV, function(i) distD(dati, covariate[i, ], d = 3))
+  }
+  id <- apply(dd, 1, which.min)
+  gu <- covariate[, 4][id]
+  gu
+}
+
+distD <- function(A, B, d){
+  a <- switch(as.character(d), 
+              "1" = sqrt((B$x - A$xx) ^ 2),
+              "2" = sqrt((B$x - A$xx) ^ 2+ (B$y - A$xy) ^ 2),
+              "3" = sqrt((B$x - A$xx) ^ 2+ (B$y - A$xy) ^ 2 + (B$t - A$xt) ^ 2))
+  a
+}
