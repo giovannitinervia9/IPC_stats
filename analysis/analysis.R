@@ -203,32 +203,32 @@ p1
 
 
 w_isr <- read.csv("places_of_worship_israel.csv", sep = ",")[,-1]
-colnames(w_isr) <- c("x", "y", "id")
+# colnames(w_isr) <- c("x", "y", "id")
 
 w_isr <- w_isr[which(w_isr$id %in% unique(war$id_nearest_pow)),]
 
-w_isr_sf <- st_as_sf(w_isr, coords = c("x", "y"), crs = 4326)
+w_isr_sf <- st_as_sf(w_isr, coords = c("Longitude", "Latitude"), crs = 4326)
 
 p1 + geom_sf(data = w_isr_sf, size = 0.7, alpha = 0.3, pch = 3) + labs(subtitle = "Black crosses are places of worship (only nearest to war events)")
 
 
 p_isr <- read.csv("political_places_israel.csv", sep = ",")[,-1]
-colnames(p_isr) <- c("x", "y", "id")
+# colnames(p_isr) <- c("x", "y", "id")
 
 # p_isr <- p_isr[which(p_isr$id %in% unique(war$id_nearest_pow)),]
 
-p_isr_sf <- st_as_sf(p_isr, coords = c("x", "y"), crs = 4326)
+p_isr_sf <- st_as_sf(p_isr, coords = c("Longitude", "Latitude"), crs = 4326)
 
 p1 + geom_sf(data = p_isr_sf, size = 0.7, alpha = 0.3, pch = 4) + labs(subtitle = "Black `x` are government places")
 
 
 
 c_isr <- read.csv("military_checkpoints_israel.csv", sep = ",")[,-1]
-colnames(c_isr) <- c("x", "y", "id")
+# colnames(c_isr) <- c("Longitude", "Latitude", "id")
 
 # c_isr <- c_isr[which(c_isr$id %in% unique(war$nearest_pow)),]
 
-c_isr_sf <- st_as_sf(c_isr, coords = c("x", "y"), crs = 4326)
+c_isr_sf <- st_as_sf(c_isr, coords = c("Longitude", "Latitude"), crs = 4326)
 
 p1 + geom_sf(data = c_isr_sf, size = 0.7, alpha = 0.25, pch = 8) + labs(subtitle = "Black `*` are military checkpoints")
 

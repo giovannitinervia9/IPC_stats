@@ -10,7 +10,8 @@ data <- ged241 |>
   select(id, year, side_b, adm_1, longitude, latitude, event_clarity, date_prec,
          where_prec, date_start, date_end, deaths_a, deaths_b, deaths_civilians,
          deaths_unknown, best) |> 
-  filter(date_prec < 4 & where_prec < 3)
+  filter(date_prec < 4 & where_prec < 3 & event_clarity == 1)
+
 # date_prec = 3 -> week known
 # where_prec < 2 -> radius of 25 km
 
@@ -41,8 +42,6 @@ data$days_since_start <- days_since_start
 data$intertimes <- c(NA, diff(data$days_since_start))
 head(data)
 write.csv(data, "IS_PAL.csv", row.names = F)
-
-
 
 # ##### removing duplicates ####
 # 
