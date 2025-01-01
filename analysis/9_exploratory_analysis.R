@@ -20,146 +20,91 @@ war$adm_1 <- factor(war$adm_1)
 war$event_clarity <- factor(war$event_clarity)
 war$date_prec <- factor(war$date_prec)
 colnames(war)
-#### ANALISI DESCRITTIVE ####
-
-hist(war$event_duration, main = "Distribuzione della durata degli eventi", xlab = "durata degli eventi")
-hist(war$event_duration[war$event_duration!=0], main = "Distribuzione della durata degli eventi 
-     (tolti quelli con durata 0)", xlab = "durata degli eventi")
 
 
 
-addmargins(table(war$event_clarity[war$event_duration!=0],
-                 war$event_duration[war$event_duration!=0]))
-#89 eventi su 4181 non si concludono nello stesso giorno, 52 degli 89 eventi si 
-#sono conclusi il giorno successivo a quello di inizio
-
-
-
-#distribuzione di event_clarity condizionatamente a date_prec
-ggplot(data = war) + 
-  geom_bar(mapping = aes(x = event_clarity, fill = date_prec), position = "fill")
-
-
-
-
-
-
-#morti per anno
-fatalities <- war |> 
-  group_by(year) |> 
-  summarise(fatalities_per_year = sum(best),
-            civilian_deaths_per_year = sum(deaths_civilians))
-
-ggplot(fatalities, aes(x = year, y = fatalities_per_year)) +
-  geom_line(color = "black", linewidth = 1) +  
-  geom_point(color = "red", size = 2) + # Punti rossi per enfatizzare i dati
-  labs(title = "Serie Storica dei morti per Anno",
-       x = "Anno",
-       y = "Fatalità") +
-  theme_minimal()
-
-
-
-
-#densità di event_duration condizionata a event_clarity
-
-filtered_war <- war |> 
-  filter(event_duration!=0)
-#distribuzione di event_duration condizionata a event_clarity
-
-ggplot(filtered_war, aes(x = factor(event_duration), fill = event_clarity)) +
-  geom_bar(alpha = 0.7) +
-  facet_wrap(~ event_clarity)
-
-
-
-intertimes_table <- table(war$intertimes[-1])
-intertimes <- as.integer(names(intertimes_table))
-n_total <- sum(intertimes_table)
-abs_freq <- as.vector(intertimes_table)
-rel_freq <- abs_freq/n_total
-cum_freq <- cumsum(rel_freq)
-surv <- (1 - cum_freq) + rel_freq
-intertimes_distr <- data.frame(intertimes = intertimes, abs_freq = abs_freq, 
-                               rel_freq = rel_freq, cum_freq = cum_freq, surv = surv)
-
-
-ggplot(intertimes_distr, aes(x = intertimes, y = rel_freq)) +
-  geom_col() + ylab("density") + 
-  xlab("intertimes")
-
-
-ggplot(intertimes_distr, aes(x = intertimes, y = cum_freq)) +
-  geom_point(shape = 1) + 
-  geom_line(linewidth = 0.2) + ylab("ecdf") + 
-  xlab("intertimes")
-
-
-
-ggplot(intertimes_distr, aes(x = log(intertimes), y = log(surv))) +
-  geom_point(shape = 1) + 
-  geom_line(linewidth = 0.2) +
-  ylab("log(survival function)") +
-  xlab("log(intertimes)") +
-  geom_smooth(method = "lm", se = FALSE, linewidth = 0.3, color = "red")
-
-
-ggplot(war, aes(x = days_since_start, y = intertimes)) + 
-  geom_point(pch = 1) + 
-  geom_text(
-    data = subset(war, intertimes > 150), # Filtra solo i punti con y > 200
-    aes(label = date_start),
-    hjust = -0.2, vjust = c(rep(-0.5, 4), -1.1, rep(-0.5, 2)), # Per posizionare meglio il testo
-    size = 2.3
-  )
-
-# ANALISI INTERTEMPI
-
-
-x <- war$intertimes[-1]
-n <- length(x)
-lambda <- 1/mean(x)
-theoretical_quantiles <- qexp(ppoints(n), rate = lambda)
-
-# Sort the observed data
-sorted_data <- sort(x)
-
-# Create the QQ plot
-qqplot(theoretical_quantiles, sorted_data,
-       main = "QQ Plot: Exponential Fit",
-       xlab = "Theoretical Quantiles",
-       ylab = "Sample Quantiles")
-abline(0, 1, col = "red")  # Add a reference line
-
-
-library(MASS)
-fit <- fitdistr(x, "Negative Binomial")
-
-# Extract the estimated parameters
-size <- fit$estimate["size"]  # Dispersion parameter
-mu <- fit$estimate["mu"]      # Mean parameter
-
-# Generate theoretical quantiles
-n <- length(x)
-theoretical_quantiles <- qnbinom(ppoints(n), size = size, mu = mu)
-
-# Sort the observed data
-sorted_data <- sort(x)
-
-# Create the QQ plot
-qqplot(theoretical_quantiles, sorted_data,
-       main = "QQ Plot: Negative Binomial Fit",
-       xlab = "Theoretical Quantiles",
-       ylab = "Sample Quantiles")
-abline(0, 1, col = "red")  # Add a reference line
+# intertimes_table <- table(war$intertimes[-1])
+# intertimes <- as.integer(names(intertimes_table))
+# n_total <- sum(intertimes_table)
+# abs_freq <- as.vector(intertimes_table)
+# rel_freq <- abs_freq/n_total
+# cum_freq <- cumsum(rel_freq)
+# surv <- (1 - cum_freq) + rel_freq
+# intertimes_distr <- data.frame(intertimes = intertimes, abs_freq = abs_freq, 
+#                                rel_freq = rel_freq, cum_freq = cum_freq, surv = surv)
+# 
+# 
+# ggplot(intertimes_distr, aes(x = intertimes, y = rel_freq)) +
+#   geom_col() + ylab("density") + 
+#   xlab("intertimes")
+# 
+# 
+# ggplot(intertimes_distr, aes(x = intertimes, y = cum_freq)) +
+#   geom_point(shape = 1) + 
+#   geom_line(linewidth = 0.2) + ylab("ecdf") + 
+#   xlab("intertimes")
+# 
+# 
+# 
+# ggplot(intertimes_distr, aes(x = log(intertimes), y = log(surv))) +
+#   geom_point(shape = 1) + 
+#   geom_line(linewidth = 0.2) +
+#   ylab("log(survival function)") +
+#   xlab("log(intertimes)") +
+#   geom_smooth(method = "lm", se = FALSE, linewidth = 0.3, color = "red")
+# 
+# 
+# ggplot(war, aes(x = days_since_start, y = intertimes)) + 
+#   geom_point(pch = 1) + 
+#   geom_text(
+#     data = subset(war, intertimes > 150), # Filtra solo i punti con y > 200
+#     aes(label = date_start),
+#     hjust = -0.2, vjust = c(rep(-0.5, 4), -1.1, rep(-0.5, 2)), # Per posizionare meglio il testo
+#     size = 2.3
+#   )
+# 
+# # ANALISI INTERTEMPI
+# 
+# 
+# x <- war$intertimes[-1]
+# n <- length(x)
+# lambda <- 1/mean(x)
+# theoretical_quantiles <- qexp(ppoints(n), rate = lambda)
+# 
+# # Sort the observed data
+# sorted_data <- sort(x)
+# 
+# # Create the QQ plot
+# qqplot(theoretical_quantiles, sorted_data,
+#        main = "QQ Plot: Exponential Fit",
+#        xlab = "Theoretical Quantiles",
+#        ylab = "Sample Quantiles")
+# abline(0, 1, col = "red")  # Add a reference line
+# 
+# 
+# library(MASS)
+# fit <- fitdistr(x, "Negative Binomial")
+# 
+# # Extract the estimated parameters
+# size <- fit$estimate["size"]  # Dispersion parameter
+# mu <- fit$estimate["mu"]      # Mean parameter
+# 
+# # Generate theoretical quantiles
+# n <- length(x)
+# theoretical_quantiles <- qnbinom(ppoints(n), size = size, mu = mu)
+# 
+# # Sort the observed data
+# sorted_data <- sort(x)
+# 
+# # Create the QQ plot
+# qqplot(theoretical_quantiles, sorted_data,
+#        main = "QQ Plot: Negative Binomial Fit",
+#        xlab = "Theoretical Quantiles",
+#        ylab = "Sample Quantiles")
+# abline(0, 1, col = "red")  # Add a reference line
 
 
 ##### ANALISI ESPLROATIVA DA INSERIRE NEL REPORT ####
-#ESPLOR
-#adm1xdeaths_civilians; adm1xdeaths_unknown; side_b; yearxdeath_a vs yearxdeaths_b;
-table(fct_lump(war$adm_1, 3))
-table(fct_lump(war$side_b, 3))
-table(fct_lump(as.factor(war$year), 3))
 
 # grafico percentuale di tipo di morti per anno
 war |> dplyr::select(c("id", "date_start", "deaths_a", "deaths_b", "deaths_civilians", "deaths_unknown", "year")) |>
@@ -181,10 +126,7 @@ war |> dplyr::select(c("id", "date_start", "deaths_a", "deaths_b", "deaths_civil
   labs(x = "Anno", y = "Percentuale", fill = "Morti")
 
 
-library(forcats)
-
-library(forcats)
-
+# grafico side_b per adm_1
 war |> 
   dplyr::select(c("id", "adm_1", "side_b")) |> 
   mutate(
@@ -217,33 +159,11 @@ war |>
 
 
 
-# Morti israele; morti palestina
-sum(war$deaths_a)
-sum(war$deaths_b)
-
-sum(war$deaths_a)+sum(war$deaths_b) #Tot: 4035
-
-# Morti civili; morti sconosciuti
-sum(war$deaths_civilians) 
-sum(war$deaths_unknown)
-
-sum(war$deaths_civilians) + sum(war$deaths_unknown) #Tot: 13228 
 
 
 
 
-
-
-
-
-
-
-
-#### PROCESSO DI PUNTO ####
-
-
-# PLOT #
-
+#### PLOT GEOGRAFICI####
 library(ggplot2)
 library(sf)
 library(rnaturalearth)
@@ -316,3 +236,143 @@ c_isr <- read.csv("military_checkpoints_israel.csv", sep = ",")[,-1]
 c_isr_sf <- st_as_sf(c_isr, coords = c("Longitude", "Latitude"), crs = 4326)
 
 p1 + geom_sf(data = c_isr_sf, size = 0.7, alpha = 0.25, pch = 8) + labs(subtitle = "Black `*` are military checkpoints")
+
+
+
+###---------------------------------------------------------
+
+
+#### ANALISI ESPLORATIVA PROCESSO DI PUNTO ####
+#### SPATSTAT ####
+conflicts_points <- data.frame(x = war$x, y = war$y)
+
+# Create SF object with correct CRS
+conflicts_points_sf <- st_as_sf(conflicts_points, coords = c("x", "y"), 
+                                crs = 32633)
+
+#### LETTURA SHAPEFILE ISRAELE ####
+library(sf)
+# Leggi lo shapefile
+israel_polygon <- st_read("israel_palestine_combined.shp")
+
+# Verifica il sistema di coordinate originale
+st_crs(israel_polygon)
+
+# Trasforma il sistema di coordinate in UTM (metri)
+israel_polygon_proj <- st_transform(israel_polygon, crs = 32633)
+conflict_points_proj <- st_transform(conflicts_points_sf, crs = 32633)
+
+# Riscalare in chilometri dividendo per 1000
+israel_polygon_proj_km <- israel_polygon_proj
+st_geometry(israel_polygon_proj_km) <- st_geometry(israel_polygon_proj) / 1000
+israel_polygon_proj <- israel_polygon_proj_km
+# Aggiorna il CRS dopo la riscalatura (CRS personalizzato o rimuovi il CRS)
+st_crs(israel_polygon_proj_km) <- NA
+st_crs(conflict_points_proj) <- NA
+
+# Check intersections
+intersected_points <- st_intersection(conflict_points_proj, israel_polygon_proj)
+
+# Convert to ppp
+# Convert SF to SP first, which can sometimes be more robust
+conflicts_sp <- as(intersected_points, "Spatial")
+
+# Create window
+israel_window <- as.owin(israel_polygon_proj)
+
+# Create ppp
+conflicts_ppp <- ppp(
+  x = coordinates(conflicts_sp)[,1],
+  y = coordinates(conflicts_sp)[,2],
+  window = israel_window
+)
+plot(conflicts_ppp, main = "Pattern spaziale")
+axis(1); axis(2)
+
+
+plot(density(conflicts_ppp), main = "")
+plot(conflicts_ppp, add = TRUE, pch = ".", alpha = 0.05,
+     cex = 0.01)
+
+
+#### STOPP ####
+#### stopp ####
+library(stopp)
+library(mgcv)
+library(spatstat)
+library(stpp)
+library(colormap)
+source("funzioni nuove e internals.R")
+W <- israel_window
+conflicts_points <- data.frame(x = war$x, y = war$y, t = war$days_since_start)
+proc <- stp(conflicts_points)
+
+mod_const <- stppm(proc, ~ 1, W = W)
+gb_const <- globaldiag(proc, mod_const$l) 
+
+class(proc)
+stopp:::plot.stp(proc)
+
+par(mfrow = c(1, 3))
+# primo grafico
+plot3D::scatter3D(proc$df$x, proc$df$y, proc$df$t, theta = -45, phi = 20, 
+                  pch = 20, cex = 0.5, ticktype = "detailed", col = "black", xlab = "x", 
+                  ylab = "y", zlab = "t", main = c("Point pattern spazio-temporale"))
+
+# secondo grafico
+plot(conflicts_ppp, main = "Point pattern spaziale", xlab = "x", ylab = "y")
+axis(1); axis(2)
+mtext("x", side = 1, line = 3, cex = 0.8)
+mtext("y", side = 2, line = 3, cex = 0.8)
+# terzo grafico
+barplot(table(proc$df$t), main = "Point pattern temporale", 
+        xlab = "t", width = 0.3)
+par(mfrow = c(1, 1))
+
+# rinominazione main
+plot.globaldiag <- function (x, samescale = TRUE, ...) 
+{
+  oldpar <- par(no.readonly = TRUE)
+  on.exit(par(oldpar))
+  lims <- if (samescale) {
+    range(c(as.numeric(x$est), as.numeric(x$theo), as.numeric(x$diffK)))
+  }
+  else {
+    NULL
+  }
+  par(mfrow = c(1, 3))
+  fields::image.plot(x$dist, x$times, x$est, main = "Funzione K stimata", 
+                     xlab = "r", ylab = "h", col = grDevices::hcl.colors(12, 
+                                                                         "YlOrRd", rev = TRUE), zlim = lims, legend.mar = 12, 
+                     axes = FALSE)
+  axis(1, at = seq(0, 1, l = length(x$dist)), labels = round(x$dist, 
+                                                             3))
+  axis(2, at = seq(0, 1, l = length(x$times)), labels = round(x$times, 
+                                                              3))
+  box()
+  fields::image.plot(x$dist, x$times, x$theo, main = "Funzione K teorica", 
+                     xlab = "r", ylab = "h", col = grDevices::hcl.colors(12, 
+                                                                         "YlOrRd", rev = TRUE), zlim = lims, legend.mar = 12, 
+                     axes = FALSE)
+  axis(1, at = seq(0, 1, l = length(x$dist)), labels = round(x$dist, 
+                                                             3))
+  axis(2, at = seq(0, 1, l = length(x$times)), labels = round(x$times, 
+                                                              3))
+  box()
+  fields::image.plot(x$dist, x$times, x$diffK, main = "Differenza", 
+                     xlab = "r", ylab = "h", col = grDevices::hcl.colors(12, 
+                                                                         "YlOrRd", rev = TRUE), zlim = lims, legend.mar = 15, 
+                     axes = FALSE)
+  axis(1, at = seq(0, 1, l = length(x$dist)), labels = round(x$dist, 
+                                                             3))
+  axis(2, at = seq(0, 1, l = length(x$times)), labels = round(x$times, 
+                                                              3))
+  box()
+}
+
+plot.globaldiag(gb_const)
+
+
+
+
+
