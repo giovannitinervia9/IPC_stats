@@ -12,6 +12,13 @@ data <- ged241 |>
          deaths_unknown, best) |> 
   filter(date_prec < 4 & where_prec < 3 & event_clarity == 1)
 
+data_non_filtered <- ged241 |> 
+  filter(conflict_name == "Israel: Palestine" & country == "Israel") |> 
+  select(id, year, side_b, adm_1, longitude, latitude, event_clarity, date_prec,
+         where_prec, date_start, date_end, deaths_a, deaths_b, deaths_civilians,
+         deaths_unknown, best)
+write.csv(data_non_filtered, "IS_PAL_non_filtered.csv", row.names = FALSE)
+
 # date_prec = 3 -> week known
 # where_prec < 2 -> radius of 25 km
 

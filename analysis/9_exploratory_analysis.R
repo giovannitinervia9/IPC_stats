@@ -15,15 +15,28 @@ if(!require(spatstat)) install.packages("spatstat")
 
 # caricamento dati
 war <- read.csv("war.csv")
-war$side_b <- factor(war$side_b)
-war$adm_1 <- factor(war$adm_1)
-war$event_clarity <- factor(war$event_clarity)
-war$date_prec <- factor(war$date_prec)
-colnames(war)
+war_nf <- read.csv("IS_PAL_non_filtered.csv")
+war_nf$side_b <- factor(war_nf$side_b)
+
+war_nf$adm_1[which(is.na(war_nf$adm_1))] <- "Unknown"
+war_nf$adm_1 <- factor(war_nf$adm_1, levels = c("Central district",
+                                                "Gaza Strip", "Haifa district", 
+                                                "Jerusalem district",
+                                                "Northern district",
+                                                "Southern district",
+                                                "Tel Aviv district",
+                                                "West Bank", "Unknown"))
 
 
 
-# intertimes_table <- table(war$intertimes[-1])
+war_nf$event_clarity <- factor(war_nf$event_clarity)
+war_nf$date_prec <- factor(war_nf$date_prec)
+colnames(war_nf)
+
+
+
+
+# intertimes_table <- table(war_nf$intertimes[-1])
 # intertimes <- as.integer(names(intertimes_table))
 # n_total <- sum(intertimes_table)
 # abs_freq <- as.vector(intertimes_table)
@@ -54,10 +67,10 @@ colnames(war)
 #   geom_smooth(method = "lm", se = FALSE, linewidth = 0.3, color = "red")
 # 
 # 
-# ggplot(war, aes(x = days_since_start, y = intertimes)) + 
+# ggplot(war_nf, aes(x = days_since_start, y = intertimes)) + 
 #   geom_point(pch = 1) + 
 #   geom_text(
-#     data = subset(war, intertimes > 150), # Filtra solo i punti con y > 200
+#     data = subset(war_nf, intertimes > 150), # Filtra solo i punti con y > 200
 #     aes(label = date_start),
 #     hjust = -0.2, vjust = c(rep(-0.5, 4), -1.1, rep(-0.5, 2)), # Per posizionare meglio il testo
 #     size = 2.3
@@ -66,7 +79,7 @@ colnames(war)
 # # ANALISI INTERTEMPI
 # 
 # 
-# x <- war$intertimes[-1]
+# x <- war_nf$intertimes[-1]
 # n <- length(x)
 # lambda <- 1/mean(x)
 # theoretical_quantiles <- qexp(ppoints(n), rate = lambda)
@@ -107,7 +120,7 @@ colnames(war)
 ##### ANALISI ESPLROATIVA DA INSERIRE NEL REPORT ####
 
 # grafico percentuale di tipo di morti per anno
-war |> dplyr::select(c("id", "date_start", "deaths_a", "deaths_b", "deaths_civilians", "deaths_unknown", "year")) |>
+war_nf |> dplyr::select(c("id", "date_start", "deaths_a", "deaths_b", "deaths_civilians", "deaths_unknown", "year")) |>
   pivot_longer(cols = 3:6, names_to = "deaths_type", values_to = "n_deaths") |>  
   group_by(year, deaths_type) |> 
   summarise(n = sum(n_deaths))  |> 
@@ -120,14 +133,14 @@ war |> dplyr::select(c("id", "date_start", "deaths_a", "deaths_b", "deaths_civil
     minor_breaks = 1989:2023          # Add ticks for every year
   ) +
   scale_fill_discrete(
-    labels = c("Israeliani", "Palestinesi", "Civili", "Stato sconosciuto")
+    labels = c("Israeliani (non civili)", "Palestinesi (non civili)", "Civili", "Sconosciuto")
   ) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +  # Rotate labels for readability
-  labs(x = "Anno", y = "Percentuale", fill = "Morti")
+  labs(x = "Anno", y = "Percentuale", fill = "Status dei deceduti")
 
 
 # grafico side_b per adm_1
-war |> 
+war_nf |> 
   dplyr::select(c("id", "adm_1", "side_b")) |> 
   mutate(
     adm_1 = fct_recode(adm_1, 
@@ -138,7 +151,8 @@ war |>
                        "Distretto settentrionale" = "Northern district",
                        "Distretto meridionale" = "Southern district",
                        "Distretto di Tel Aviv" = "Tel Aviv district",
-                       "Cisgiordania" = "West Bank"
+                       "Cisgiordania" = "West Bank",
+                       "Sconosciuta" = "Unknown"
     ),
     side_b = fct_lump(side_b, 3, other_level = "Altro (AMB, PFLP, PFLP-GC, PNA, PRC)")
   ) |> 
@@ -163,12 +177,15 @@ war |>
 
 
 
+rm(list = ls())
 #### PLOT GEOGRAFICI####
 library(ggplot2)
 library(sf)
 library(rnaturalearth)
 library(rnaturalearthdata)
 library(dplyr)
+
+war <- read.csv("war.csv")
 
 df <- data.frame(x = war$longitude,
                  y = war$latitude)
@@ -191,51 +208,75 @@ region <- st_crop(world, region_bbox)
 # Convert df to an sf object
 df_sf <- st_as_sf(df, coords = c("x", "y"), crs = 4326)
 
-# Plot the data with the map
-
-p1 <- ggplot() +
-  geom_sf(data = region, fill = "lightgray", color = "black") +  # Region map
-  geom_sf(data = df_sf, color = "red", size = 0.5, alpha = 0.4) +  # Points from df
-  theme_minimal() +
-  coord_sf(xlim = c(region_bbox$xmin, region_bbox$xmax),
-           ylim = c(region_bbox$ymin, region_bbox$ymax),
-           expand = FALSE) +
-  labs(title = paste0("Conflict Events in Israel"),
-       x = "Longitude",
-       y = "Latitude")
-
-p1 
-
-
 w_isr <- read.csv("places_of_worship_israel.csv", sep = ",")[,-1]
-# colnames(w_isr) <- c("x", "y", "id")
-
 w_isr <- w_isr[which(w_isr$id %in% unique(war$id_nearest_pow)),]
-
-w_isr_sf <- st_as_sf(w_isr, coords = c("Longitude", "Latitude"), crs = 4326)
-
-p1 + geom_sf(data = w_isr_sf, size = 0.7, alpha = 0.3, pch = 3) + labs(subtitle = "Black crosses are places of worship (only nearest to war events)")
-
-
-p_isr <- read.csv("political_places_israel.csv", sep = ",")[,-1]
-# colnames(p_isr) <- c("x", "y", "id")
-
-# p_isr <- p_isr[which(p_isr$id %in% unique(war$id_nearest_pow)),]
-
-p_isr_sf <- st_as_sf(p_isr, coords = c("Longitude", "Latitude"), crs = 4326)
-
-p1 + geom_sf(data = p_isr_sf, size = 0.7, alpha = 0.3, pch = 4) + labs(subtitle = "Black `x` are government places")
-
-
-
+w_isr_sf <- st_as_sf(w_isr[, 1:2], coords = c("Longitude", "Latitude"), crs = 4326)
 c_isr <- read.csv("military_checkpoints_israel.csv", sep = ",")[,-1]
-# colnames(c_isr) <- c("Longitude", "Latitude", "id")
+c_isr_sf <- st_as_sf(c_isr[, 1:2], coords = c("Longitude", "Latitude"), crs = 4326)
+p_isr <- read.csv("political_places_israel.csv", sep = ",")[,-1]
+p_isr_sf <- st_as_sf(p_isr[, 1:2], coords = c("Longitude", "Latitude"), crs = 4326)
 
-# c_isr <- c_isr[which(c_isr$id %in% unique(war$nearest_pow)),]
 
-c_isr_sf <- st_as_sf(c_isr, coords = c("Longitude", "Latitude"), crs = 4326)
+# Supponiamo di avere quattro sf diversi:
+# df_sf      -> Eventi
+# w_isr_sf   -> Luoghi di culto (+)
+# c_isr_sf   -> Checkpoint militari (*)
+# p_isr_sf   -> Edifici governativi (x)
 
-p1 + geom_sf(data = c_isr_sf, size = 0.7, alpha = 0.25, pch = 8) + labs(subtitle = "Black `*` are military checkpoints")
+# Aggiungo una colonna "cat" che specifica la categoria
+df_sf      <- df_sf    %>% mutate(cat = "Eventi")
+w_isr_sf   <- w_isr_sf %>% mutate(cat = "Luoghi di culto")
+c_isr_sf   <- c_isr_sf %>% mutate(cat = "Checkpoint militari")
+p_isr_sf   <- p_isr_sf %>% mutate(cat = "Edifici governativi")
+
+# Unisco tutto in un unico data frame (facoltativo, ma comodo)
+all_data <- rbind(df_sf, w_isr_sf, c_isr_sf, p_isr_sf)
+all_data$cat <- factor(all_data$cat, levels = c("Eventi", "Luoghi di culto",
+                                                "Checkpoint militari",
+                                                "Edifici governativi"))
+
+# Definisco i valori di colore e forma per ciascun livello di cat
+col_vals <- c("Eventi"                  = "red",
+              "Luoghi di culto"     = "black",
+              "Checkpoint militari" = "black",
+              "Edifici governativi" = "black")
+
+shape_vals <- c("Eventi"                  = 16,  # cerchio pieno
+                "Luoghi di culto"     = 3,   # +
+                "Checkpoint militari" = 8,   # *
+                "Edifici governativi" = 4)   # x
+
+# Elenco dei livelli in ordine
+cat_levels <- c("Eventi", 
+                "Luoghi di culto", 
+                "Checkpoint militari", 
+                "Edifici governativi")
+
+ggplot() +
+  geom_sf(data = region, fill = "lightgray", color = "black") +
+  # Filtro "Eventi"
+  geom_sf(data = all_data,
+          aes(color = cat, shape = cat),
+          alpha = 0.4, size = 1, show.legend = F) +
+  # Ma nelle scale metto TUTTI i livelli
+  scale_color_manual(
+    name   = NULL,            # stesso "name" per color e shape
+    values = col_vals,
+    breaks = cat_levels
+  ) +
+  scale_shape_manual(
+    name   = NULL,
+    values = shape_vals,
+    breaks = cat_levels
+  ) +
+  # Per avere alpha pieno in legenda
+  guides(
+    color = guide_legend(override.aes = list(alpha = 1, size = 2))
+  ) +
+  theme_bw() +
+  theme(axis.text = element_blank(),
+        axis.ticks = element_blank()) +
+  facet_wrap(~cat)
 
 
 
