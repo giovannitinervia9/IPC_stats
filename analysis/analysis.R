@@ -19,7 +19,7 @@ war$side_b <- factor(war$side_b)
 war$adm_1 <- factor(war$adm_1)
 war$event_clarity <- factor(war$event_clarity)
 war$date_prec <- factor(war$date_prec)
-
+colnames(war)
 #### ANALISI DESCRITTIVE ####
 
 hist(war$event_duration, main = "Distribuzione della durata degli eventi", xlab = "durata degli eventi")
@@ -152,6 +152,91 @@ qqplot(theoretical_quantiles, sorted_data,
        xlab = "Theoretical Quantiles",
        ylab = "Sample Quantiles")
 abline(0, 1, col = "red")  # Add a reference line
+
+
+##### ANALISI ESPLROATIVA DA INSERIRE NEL REPORT ####
+#ESPLOR
+#adm1xdeaths_civilians; adm1xdeaths_unknown; side_b; yearxdeath_a vs yearxdeaths_b;
+table(fct_lump(war$adm_1, 3))
+table(fct_lump(war$side_b, 3))
+table(fct_lump(as.factor(war$year), 3))
+
+# grafico percentuale di tipo di morti per anno
+war |> dplyr::select(c("id", "date_start", "deaths_a", "deaths_b", "deaths_civilians", "deaths_unknown", "year")) |>
+  pivot_longer(cols = 3:6, names_to = "deaths_type", values_to = "n_deaths") |>  
+  group_by(year, deaths_type) |> 
+  summarise(n = sum(n_deaths))  |> 
+  mutate(percentage = n / sum(n)) |> # View()
+  ggplot(aes(x = year, y = percentage, fill = deaths_type)) +
+  geom_area(alpha = 0.5 , size = 0.3, colour = "black") + 
+  theme_bw() +
+  scale_x_continuous(
+    breaks = seq(1990, 2023, by = 5),  # Show labels for every 5 years
+    minor_breaks = 1989:2023          # Add ticks for every year
+  ) +
+  scale_fill_discrete(
+    labels = c("Israeliani", "Palestinesi", "Civili", "Stato sconosciuto")
+  ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +  # Rotate labels for readability
+  labs(x = "Anno", y = "Percentuale", fill = "Morti")
+
+
+library(forcats)
+
+library(forcats)
+
+war |> 
+  dplyr::select(c("id", "adm_1", "side_b")) |> 
+  mutate(
+    adm_1 = fct_recode(adm_1, 
+                       "Distretto centrale" = "Central district",
+                       "Striscia di Gaza" = "Gaza Strip",
+                       "Distretto di Haifa" = "Haifa district",
+                       "Distretto di Gerusalemme" = "Jerusalem district",
+                       "Distretto settentrionale" = "Northern district",
+                       "Distretto meridionale" = "Southern district",
+                       "Distretto di Tel Aviv" = "Tel Aviv district",
+                       "Cisgiordania" = "West Bank"
+    ),
+    side_b = fct_lump(side_b, 3, other_level = "Altro (AMB, PFLP, PFLP-GC, PNA, PRC)")
+  ) |> 
+  group_by(adm_1) |> 
+  count(side_b) |> 
+  group_by(adm_1) |> 
+  mutate(percentage = n / sum(n)) |>  # Calcolo delle percentuali
+  ggplot() + 
+  geom_bar(aes(x = adm_1, y = percentage, fill = side_b), stat = "identity") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +  # Etichette verticali
+  labs(
+    x = "Regione amministrativa", 
+    y = "Percentuale", 
+    fill = "Fazione palestinese contrapposta ad Israele"
+  )
+
+ 
+
+
+# Morti israele; morti palestina
+sum(war$deaths_a)
+sum(war$deaths_b)
+
+sum(war$deaths_a)+sum(war$deaths_b) #Tot: 4035
+
+# Morti civili; morti sconosciuti
+sum(war$deaths_civilians) 
+sum(war$deaths_unknown)
+
+sum(war$deaths_civilians) + sum(war$deaths_unknown) #Tot: 13228 
+
+
+
+
+
+
+
+
+
 
 
 #### PROCESSO DI PUNTO ####
