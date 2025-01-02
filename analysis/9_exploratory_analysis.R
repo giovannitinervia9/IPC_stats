@@ -126,7 +126,7 @@ war_nf |> dplyr::select(c("id", "date_start", "deaths_a", "deaths_b", "deaths_ci
   summarise(n = sum(n_deaths))  |> 
   mutate(percentage = n / sum(n)) |> # View()
   ggplot(aes(x = year, y = percentage, fill = deaths_type)) +
-  geom_area(alpha = 0.5 , size = 0.3, colour = "black") + 
+  geom_bar(alpha = 0.5 , size = 0.3, colour = "black") + 
   theme_bw() +
   scale_x_continuous(
     breaks = seq(1990, 2023, by = 5),  # Show labels for every 5 years
@@ -137,6 +137,36 @@ war_nf |> dplyr::select(c("id", "date_start", "deaths_a", "deaths_b", "deaths_ci
   ) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +  # Rotate labels for readability
   labs(x = "Anno", y = "Percentuale", fill = "Status dei deceduti")
+
+
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(MetBrewer)
+# grafico percentuale di tipo di morti per anno
+war_nf |> dplyr::select(c("id", "date_start", "deaths_a", "deaths_b", "deaths_civilians", 
+                          "deaths_unknown", "year")) |>
+  pivot_longer(cols = 3:6, names_to = "deaths_type", values_to = "n_deaths") |>  
+  group_by(year, deaths_type) |> 
+  summarise(n = sum(n_deaths))  |> 
+  mutate(percentage = n / sum(n)) |> # View()
+  ggplot(aes(x = year, y = percentage, fill = deaths_type)) +
+  geom_bar(stat = "identity",alpha = 0.8 , size = 0.3, colour = "black", show.legend = T) +
+  theme_bw() +
+  scale_x_continuous(
+    breaks = seq(1990, 2023, by = 3),  # Show labels for every 5 years
+    minor_breaks = 1989:2023          # Add ticks for every year
+  ) + 
+  scale_fill_manual(
+    values = met.brewer("Egypt", n = 4),  # Usa la palette Egypt con 4 colori
+    labels = c("Israeliani (non civili)", "Palestinesi (non civili)", "Civili", "Sconosciuto")
+  ) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.key.size = unit(0.7,"cm")) +  # Rotate labels for readability
+  labs(x = "Anno", y = "Percentuale", fill = "Status dei deceduti") +
+  scale_y_continuous(breaks = seq(0, 1, by = 0.2))
+ 
 
 
 # grafico side_b per adm_1
@@ -161,14 +191,31 @@ war_nf |>
   group_by(adm_1) |> 
   mutate(percentage = n / sum(n)) |>  # Calcolo delle percentuali
   ggplot() + 
-  geom_bar(aes(x = adm_1, y = percentage, fill = side_b), stat = "identity") +
+  geom_bar(aes(x = adm_1, y = percentage, fill = side_b), stat = "identity",
+           alpha = 0.8) +
   theme_bw() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +  # Etichette verticali
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        legend.key.size = unit(0.7,"cm")) +  # Etichette verticali
   labs(
     x = "Regione amministrativa", 
     y = "Percentuale", 
-    fill = "Fazione palestinese contrapposta ad Israele"
-  )
+    fill = "Fazione palestinese contrapposta ad Israele") +
+  scale_fill_manual(
+    values = met.brewer("Egypt", n = 4))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
