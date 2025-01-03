@@ -24,6 +24,7 @@ write.csv(data_non_filtered, "IS_PAL_non_filtered.csv", row.names = FALSE)
 
 table(data$date_prec, data$where_prec) |> prop.table()
 
+df <- data.frame(x = war$longitude, y = war$latitude, y = war$days_since_start)
 
 # conversione da gradi a metri
 library(sf)

@@ -152,7 +152,7 @@ war_nf |> dplyr::select(c("id", "date_start", "deaths_a", "deaths_b", "deaths_ci
   summarise(n = sum(n_deaths))  |> 
   mutate(percentage = n / sum(n)) |> # View()
   ggplot(aes(x = year, y = percentage, fill = deaths_type)) +
-  geom_bar(stat = "identity",alpha = 0.8 , size = 0.3, colour = "black", show.legend = T) +
+  geom_bar(stat = "identity",alpha = 0.8, size = 0.3, colour = "black", show.legend = T) +
   theme_bw() +
   scale_x_continuous(
     breaks = seq(1990, 2023, by = 3),  # Show labels for every 5 years
@@ -162,9 +162,10 @@ war_nf |> dplyr::select(c("id", "date_start", "deaths_a", "deaths_b", "deaths_ci
     values = met.brewer("Egypt", n = 4),  # Usa la palette Egypt con 4 colori
     labels = c("Israeliani (non civili)", "Palestinesi (non civili)", "Civili", "Sconosciuto")
   ) +
+ # scale_fill_viridis_d() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         legend.key.size = unit(0.7,"cm")) +  # Rotate labels for readability
-  labs(x = "Anno", y = "Percentuale", fill = "Status dei deceduti") +
+  labs(x = "Anno", y = "Frequenza relativa", fill = "Status dei deceduti") +
   scale_y_continuous(breaks = seq(0, 1, by = 0.2))
  
 
@@ -198,7 +199,7 @@ war_nf |>
         legend.key.size = unit(0.7,"cm")) +  # Etichette verticali
   labs(
     x = "Regione amministrativa", 
-    y = "Percentuale", 
+    y = "Frequenza relativa", 
     fill = "Fazione palestinese contrapposta ad Israele") +
   scale_fill_manual(
     values = met.brewer("Egypt", n = 4))
@@ -332,7 +333,7 @@ ggplot() +
 
 #### ANALISI ESPLORATIVA PROCESSO DI PUNTO ####
 #### SPATSTAT ####
-conflicts_points <- data.frame(x = war$x, y = war$y)
+conflicts_points <- data.frame(x = war$x, y = war$y, year = war$year)
 
 # Create SF object with correct CRS
 conflicts_points_sf <- st_as_sf(conflicts_points, coords = c("x", "y"), 
@@ -374,11 +375,12 @@ conflicts_ppp <- ppp(
   y = coordinates(conflicts_sp)[,2],
   window = israel_window
 )
-plot(conflicts_ppp, main = "Pattern spaziale")
+plot(unmark(conflicts_ppp), main = "Pattern spaziale")
 axis(1); axis(2)
 
 
-plot(density(conflicts_ppp), main = "")
+conflicts_ppp
+plot(density(conflicts_ppp), main = "Densità non parametrica")
 plot(conflicts_ppp, add = TRUE, pch = ".", alpha = 0.05,
      cex = 0.01)
 
@@ -392,14 +394,11 @@ library(stpp)
 library(colormap)
 source("funzioni nuove e internals.R")
 W <- israel_window
+war$date_start
+
 conflicts_points <- data.frame(x = war$x, y = war$y, t = war$days_since_start)
 proc <- stp(conflicts_points)
 
-mod_const <- stppm(proc, ~ 1, W = W)
-gb_const <- globaldiag(proc, mod_const$l) 
-
-class(proc)
-stopp:::plot.stp(proc)
 
 par(mfrow = c(1, 3))
 # primo grafico
@@ -412,10 +411,49 @@ plot(conflicts_ppp, main = "Point pattern spaziale", xlab = "x", ylab = "y")
 axis(1); axis(2)
 mtext("x", side = 1, line = 3, cex = 0.8)
 mtext("y", side = 2, line = 3, cex = 0.8)
+
 # terzo grafico
-barplot(table(proc$df$t), main = "Point pattern temporale", 
-        xlab = "t", width = 0.3)
+# plot3_data processing
+plot3_data <- war |> 
+  select(date_start, year) |>
+  mutate(date_start = as_date(date_start)) |> 
+  group_by(date_start, year) |> 
+  count()
+
+# Calculate the point with the maximum value
+max_point <- plot3_data[which.max(plot3_data$n), ]
+
+# Plot without axes
+plot(plot3_data$date_start,
+     plot3_data$n, 
+     type = "h", 
+     axes = F, 
+     xlab = "Anno", 
+     ylab = "",
+     main = "Point pattern temporale")
+
+# Add the x-axis with years as labels
+axis(1, 
+     at = as.numeric(as.Date(paste0(c(seq(1989, 2023, by = 5), 2023), "-01-01"))), 
+     labels = c(seq(1989, 2023, by = 5), 2023), 
+     tick = T, pos = 0, las = 2)
+
+# Add the y-axis
+axis(2,
+     at = seq(0, 70, by = 10), labels = seq(0, 70, by = 10))
+
+# Add the annotation for the maximum point
+text(x = as.numeric(max_point$date_start), 
+     y = max_point$n, 
+     labels = as.character(max_point$date_start), 
+     pos = 3,  # Position above the bar
+     col = "red",  # Red color for the label
+     cex = 0.8)  # Adjust label size
+
 par(mfrow = c(1, 1))
+
+
+
 
 # rinominazione main
 plot.globaldiag <- function (x, samescale = TRUE, ...) 
@@ -457,6 +495,60 @@ plot.globaldiag <- function (x, samescale = TRUE, ...)
                                                               3))
   box()
 }
+
+mod_const <- stppm(proc, ~ 1, W = W)
+gb_const <- globaldiag(proc, mod_const$l) 
+
+library(lattice)
+plot3d.globaldiag <- function(x){
+  # Preparazione dei dati per il grafico
+  k_est <- x$est
+  k_teor <- x$theo
+  k_diff <- x$diffK
+  data_est <- expand.grid(r = x$dist, h = x$times)
+  data_est$k <- as.vector(k_est)
+  data_est$type <- "K stimata"
+  
+  data_teor <- expand.grid(r = x$dist, h = x$times)
+  data_teor$k <- as.vector(k_teor)
+  data_teor$type <- "K teorica"
+  
+  data_diff <- expand.grid(r = x$dist, h = x$times)
+  data_diff$k <- as.vector(k_diff)
+  data_diff$type <- "Differenza"
+  
+  # Combina i dati
+  data <- rbind(data_est, data_teor, data_diff)
+  
+  # Ordina i livelli del fattore `type` (k_est, k_teor, k_diff)
+  data$type <- factor(data$type, levels = c("K stimata", "K teorica", "Differenza"))
+  
+  # Palette personalizzata
+  palette_custom <- grDevices::hcl.colors(100, "YlOrRd", rev = TRUE)
+  
+  # Grafico con wireframe, font ridotto per etichette e nomi degli assi
+  wireframe(
+    k ~ r * h | type, 
+    data = data,
+    drape = TRUE,
+    scales = list(
+      arrows = FALSE,
+      cex = 0.5 # Riduce la dimensione delle etichette degli assi
+    ),
+    col.regions = palette_custom,
+    screen = list(z = 35, x = -70),
+    main = "",
+    par.settings = list(
+      axis.text = list(cex = 0.7),  # Riduce il font delle etichette
+      par.xlab.text = list(cex = 0.5),  # Riduce il font del nome dell'asse X
+      par.ylab.text = list(cex = 0.5),  # Riduce il font del nome dell'asse Y
+      par.zlab.text = list(cex = 0.5)   # Riduce il font del nome dell'asse Z
+    )
+  )
+}
+
+plot3d.globaldiag(gb_const)
+
 
 plot.globaldiag(gb_const)
 
