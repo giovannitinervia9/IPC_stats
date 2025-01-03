@@ -87,10 +87,14 @@ W <- israel_window
 conflicts_points <- data.frame(x = war$x, y = war$y, t = war$days_since_start)
 proc <- stp(conflicts_points)
 mod <- stppm(X = proc,
-             formula = ~ poly(x, 2) + poly(y, 2) + poly(t, 2),
+             formula = ~ (x + y + t)^2 + I(x^2) + I(y^2) + I(t^2),
              W = W)
 summary(mod$mod_global)
 
+gb_mod <- globaldiag(proc, mod$l)
+
+plot3d.globaldiag(gb_mod)
+plot.globaldiag(gb_mod)
 # scaler = c("silverman", "IQR", "sd", "var")
 plot.stppm(mod, W = W, scaler = "sd", do.points = F)
 
@@ -135,7 +139,7 @@ if(file.exists("covs.rds")){
 
 
 
-mod2 <- stppm(proc, ~ poly(x, 2) + poly(y, 2) + poly(t, 2) + dist_nearest_pow +
+mod2 <- stppm(proc, ~ (x + y + t)^2 + I(x^2) + I(y^2) + I(t^2) + dist_nearest_pow +
                 dist_nearest_gov + dist_nearest_chp + 
                 days_from_nearest_heb_cal + days_from_nearest_isl_cal,
               covs = covs, spatial.cov = T, W = W)
@@ -145,11 +149,77 @@ mod2 <- stppm(proc, ~ poly(x, 2) + poly(y, 2) + poly(t, 2) + dist_nearest_pow +
 summary(mod2$mod_global)
 plot.stppm(x = mod2, W = W, scaler = "sd", do.points = F)
 
-# resmod2 <- localdiag(proc, mod2$l)
+gb_mod2 <- globaldiag(proc, mod2$l)
+
+
+mod2$mod_global
+library(ggeffects)
+predict_response(mod2$mod_global, terms = "x") |>
+  ggplot(aes(x, predicted)) + geom_line()
+
+predict_response(mod2$mod_global, terms = "y") |>
+  ggplot(aes(x, predicted)) + geom_line()
+
+predict_response(mod2$mod_global, terms = "days_from_nearest_heb_cal") |>
+  ggplot(aes(x, predicted)) + geom_line()
+
+plot(predict_response(mod2$mod_global, terms = "days_from_nearest_heb_cal"))
 
 #### LOG GAUSSIAN COX 
-modl <- stlgcppm(X = proc, formula = ~ poly(x, 2) + poly(y, 2) + poly(t, 2), W = W,
+modlgc <- stlgcppm(X = proc, formula = ~ (x + y + t)^2 + I(x^2) + I(y^2) + I(t^2), W = W,
                  cov = "separable")
-plot.stppm(modl, W = W, scaler = "sd", do.points = F)
-g_diag_l <- globaldiag(proc, modl$l)
-plot(g_diag_l)
+summary(modlgc$mod_global)
+plot.stppm(modlgc, W = W, scaler = "sd", do.points = F)
+g_modlgc <- globaldiag(proc, modlgc$l)
+plot3d.globaldiag(g_modlgc)
+plot.globaldiag(g_modlgc)
+
+
+plot.lgcpcov <- function(x, r = seq(0, 25, l = 30), h = seq(0, 3000, l = 30)){
+  
+  theta <- x$CovCoefs
+  
+  grid_rh <- expand.grid(r = r, h = h)
+  grid_rh$`C(r, h)` <- theta[1]^2*exp(-grid_rh$r/theta[2])*exp(-grid_rh$h/theta[3])
+  
+  palette_custom <- grDevices::hcl.colors(1000, "YlOrRd", rev = TRUE)
+  wireframe(
+    `C(r, h)` ~ r * h, 
+    data = grid_rh,
+    drape = TRUE,
+    scales = list(
+      arrows = FALSE,
+      cex = 0.5 # Riduce la dimensione delle etichette degli assi
+    ),
+    col.regions = palette_custom,
+    colorkey = F,
+    screen = list(z = -60, x = -70),
+    main = "",
+    par.settings = list(
+      axis.text = list(cex = 0.7),  # Riduce il font delle etichette
+      par.xlab.text = list(cex = 0.65),  # Riduce il font del nome dell'asse X
+      par.ylab.text = list(cex = 0.65),  # Riduce il font del nome dell'asse Y
+      par.zlab.text = list(cex = 0.65)   # Riduce il font del nome dell'asse Z
+    )
+  ) 
+}
+
+plot.lgcpcov(modlgc)
+
+
+
+
+mod3 <- stppm(proc, ~ s(x) + s(y) + s(t) + x:y + x:t + y:t + x:y:t + dist_nearest_pow +
+        dist_nearest_gov + dist_nearest_chp + 
+        days_from_nearest_heb_cal + days_from_nearest_isl_cal,
+      covs = covs, spatial.cov = T, W = W)
+gb_mod3 <- globaldiag(proc, mod3$l)
+
+mod3
+summary(mod3$mod_global)
+plot3d.globaldiag(gb_mod3)
+plot(war$x, mod3$y_resp)
+
+# dist_nearest_chp days_from_nearest_heb_cal days_from_nearest_isl_cal
+
+predict_response(mod2$mod_global, terms = "days_from_nearest_heb_cal") |> plot()

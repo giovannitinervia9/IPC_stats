@@ -782,3 +782,175 @@ distD <- function(A, B, d){
               "3" = sqrt((B$x - A$xx) ^ 2+ (B$y - A$xy) ^ 2 + (B$t - A$xt) ^ 2))
   a
 }
+
+
+
+library(lattice)
+plot3d.globaldiag <- function(x){
+  # Preparazione dei dati per il grafico
+  k_est <- x$est
+  k_teor <- x$theo
+  k_diff <- x$diffK
+  data_est <- expand.grid(r = x$dist, h = x$times)
+  data_est$k <- as.vector(k_est)
+  data_est$type <- "K stimata"
+  
+  data_teor <- expand.grid(r = x$dist, h = x$times)
+  data_teor$k <- as.vector(k_teor)
+  data_teor$type <- "K teorica"
+  
+  data_diff <- expand.grid(r = x$dist, h = x$times)
+  data_diff$k <- as.vector(k_diff)
+  data_diff$type <- "Differenza"
+  
+  # Combina i dati
+  data <- rbind(data_est, data_teor, data_diff)
+  
+  # Ordina i livelli del fattore `type` (k_est, k_teor, k_diff)
+  data$type <- factor(data$type, levels = c("K stimata", "K teorica", "Differenza"))
+  
+  # Palette personalizzata
+  palette_custom <- grDevices::hcl.colors(100, "YlOrRd", rev = TRUE)
+  
+  # Grafico con wireframe, font ridotto per etichette e nomi degli assi
+  wireframe(
+    k ~ r * h | type, 
+    data = data,
+    drape = TRUE,
+    scales = list(
+      arrows = FALSE,
+      cex = 0.5 # Riduce la dimensione delle etichette degli assi
+    ),
+    colorkey = FALSE,
+    col.regions = palette_custom,
+    screen = list(z = 35, x = -70),
+    main = "",
+    par.settings = list(
+      axis.text = list(cex = 0.7),  # Riduce il font delle etichette
+      par.xlab.text = list(cex = 0.5),  # Riduce il font del nome dell'asse X
+      par.ylab.text = list(cex = 0.5),  # Riduce il font del nome dell'asse Y
+      par.zlab.text = list(cex = 0.5)   # Riduce il font del nome dell'asse Z
+    )
+  )
+}
+
+
+# rinominazione main
+plot.globaldiag <- function (x, samescale = TRUE, ...) 
+{
+  oldpar <- par(no.readonly = TRUE)
+  on.exit(par(oldpar))
+  lims <- if (samescale) {
+    range(c(as.numeric(x$est), as.numeric(x$theo), as.numeric(x$diffK)))
+  }
+  else {
+    NULL
+  }
+  par(mfrow = c(1, 3))
+  fields::image.plot(x$dist, x$times, x$est, main = "Funzione K stimata", 
+                     xlab = "r", ylab = "h", col = grDevices::hcl.colors(12, 
+                                                                         "YlOrRd", rev = TRUE), zlim = lims, legend.mar = 12, 
+                     axes = FALSE)
+  axis(1, at = seq(0, 1, l = length(x$dist)), labels = round(x$dist, 
+                                                             3))
+  axis(2, at = seq(0, 1, l = length(x$times)), labels = round(x$times, 
+                                                              3))
+  box()
+  fields::image.plot(x$dist, x$times, x$theo, main = "Funzione K teorica", 
+                     xlab = "r", ylab = "h", col = grDevices::hcl.colors(12, 
+                                                                         "YlOrRd", rev = TRUE), zlim = lims, legend.mar = 12, 
+                     axes = FALSE)
+  axis(1, at = seq(0, 1, l = length(x$dist)), labels = round(x$dist, 
+                                                             3))
+  axis(2, at = seq(0, 1, l = length(x$times)), labels = round(x$times, 
+                                                              3))
+  box()
+  fields::image.plot(x$dist, x$times, x$diffK, main = "Differenza", 
+                     xlab = "r", ylab = "h", col = grDevices::hcl.colors(12, 
+                                                                         "YlOrRd", rev = TRUE), zlim = lims, legend.mar = 15, 
+                     axes = FALSE)
+  axis(1, at = seq(0, 1, l = length(x$dist)), labels = round(x$dist, 
+                                                             3))
+  axis(2, at = seq(0, 1, l = length(x$times)), labels = round(x$times, 
+                                                              3))
+  box()
+}
+
+
+
+plot.stppm <- function(x, W,
+                       scaler = c("silverman", "IQR", "sd", "var"),
+                       do.points = TRUE,
+                       print.bw = FALSE,
+                       zap = 0.00001,
+                       par = TRUE, mark_int = NULL,
+                       ...){
+  
+  
+  if(inherits(x$IntCoefs, "numeric") & length(x$IntCoefs) == 1){
+    stop("Constant intensity, no plot to show")
+  }
+  
+  oldpar <- par(no.readonly = TRUE)
+  on.exit(par(oldpar))
+  
+  if(is.null(mark_int)) mark_int <- x$l
+  
+  id <- which(!is.na(x$l))
+  
+  ppx_int <- suppressWarnings(spatstat.geom::ppp(x$X$df$x[id], x$X$df$y[id],
+                                                 marks = mark_int[id],
+                                                 window = W#spatstat.geom::owin(range(x$X$df$x[id]), range(x$X$df$y[id]))
+  ))
+  sig <- sparr::OS(unmark(ppx_int), scaler = scaler)
+  
+  if(par == T){
+    par(mfrow = c(1, 2))
+    par(mar = c(5, 4, 4, 2) + 0.1 - c(4, 1 , 1, 1))
+    plot(spatstat.explore::Smooth(ppx_int, sigma = sig), zap = zap,
+         col = attr(spatstat.geom::colourmap(grDevices::hcl.colors(100, "Viridis",
+                                                                   rev = TRUE),
+                                             range = range(mark_int[id])),
+                    "stuff")$outputs,
+         main = c("Intensità nello spazio \n Density Kernel Smoothing"))
+    if(do.points == T){plot(spatstat.geom::unmark(ppx_int), add = T, cex = 0.5)}
+    
+    par(mar = c(5, 4, 4, 2) + 0.1 - c(4, 1 , 1, -0.5))
+    
+    plot3D::scatter3D(x$X$df$x[id], x$X$df$y[id], x$X$df$t[id],
+                      theta = - 45, phi = 20,
+                      col = attr(spatstat.geom::colourmap(grDevices::hcl.colors(100, "Viridis", rev = TRUE),
+                                                          range = range(mark_int[id])),
+                                 "stuff")$outputs,
+                      ticktype = "detailed", pch = 20,
+                      colvar = mark_int[id],
+                      xlab="x",ylab="y",zlab="t",
+                      main = c("Intensità nello spazio-tempo \n Pointwise computation"))
+    par(mar = c(5, 4, 4, 2) + 0.1)
+  } else {
+    par(mfrow = c(1, 1))
+    par(ask = TRUE)
+    plot(spatstat.explore::Smooth(ppx_int, sigma = sig), zap = zap,
+         col = attr(spatstat.geom::colourmap(grDevices::hcl.colors(100, "Viridis", rev = TRUE),
+                                             range = range(mark_int[id])),
+                    "stuff")$outputs,
+         main = c("Intensità nello spazio \n Density Kernel Smoothing"))
+    if(do.points == T){plot(spatstat.geom::unmark(ppx_int[id]), add = T, cex = 0.5)}
+    par(ask = TRUE)
+    par(mar = c(5, 4, 4, 2) + 0.1 - c(4, 1 , 1, -0.5))
+    plot3D::scatter3D(x$X$df$x[id], x$X$df$y[id], x$X$df$t[id],
+                      theta = - 45, phi = 20,
+                      col = attr(spatstat.geom::colourmap(grDevices::hcl.colors(100, "Viridis", rev = TRUE),
+                                                          range = range(mark_int[id])),
+                                 "stuff")$outputs,
+                      ticktype = "detailed", pch = 20,
+                      colvar = mark_int[id],
+                      xlab="x",ylab="y",zlab="t",
+                      main = c("Intensità nello spazio-tempo \n Pointwise computation"))
+    par(mar = c(5, 4, 4, 2) + 0.1)
+    par(ask = FALSE)
+  }
+  if(print.bw == T){print(sig)}
+}
+
+

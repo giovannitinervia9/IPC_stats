@@ -118,49 +118,27 @@ colnames(war_nf)
 
 
 ##### ANALISI ESPLROATIVA DA INSERIRE NEL REPORT ####
-
-# grafico percentuale di tipo di morti per anno
-war_nf |> dplyr::select(c("id", "date_start", "deaths_a", "deaths_b", "deaths_civilians", "deaths_unknown", "year")) |>
-  pivot_longer(cols = 3:6, names_to = "deaths_type", values_to = "n_deaths") |>  
-  group_by(year, deaths_type) |> 
-  summarise(n = sum(n_deaths))  |> 
-  mutate(percentage = n / sum(n)) |> # View()
-  ggplot(aes(x = year, y = percentage, fill = deaths_type)) +
-  geom_bar(alpha = 0.5 , size = 0.3, colour = "black") + 
-  theme_bw() +
-  scale_x_continuous(
-    breaks = seq(1990, 2023, by = 5),  # Show labels for every 5 years
-    minor_breaks = 1989:2023          # Add ticks for every year
-  ) +
-  scale_fill_discrete(
-    labels = c("Israeliani (non civili)", "Palestinesi (non civili)", "Civili", "Sconosciuto")
-  ) +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +  # Rotate labels for readability
-  labs(x = "Anno", y = "Percentuale", fill = "Status dei deceduti")
-
-
-
 library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(MetBrewer)
 # grafico percentuale di tipo di morti per anno
-war_nf |> dplyr::select(c("id", "date_start", "deaths_a", "deaths_b", "deaths_civilians", 
-                          "deaths_unknown", "year")) |>
-  pivot_longer(cols = 3:6, names_to = "deaths_type", values_to = "n_deaths") |>  
+war_nf |> dplyr::select(c("id", "date_start", "deaths_a", "deaths_b", "deaths_civilians", "year")) |>
+  pivot_longer(cols = 3:5, names_to = "deaths_type", values_to = "n_deaths") |>  
   group_by(year, deaths_type) |> 
   summarise(n = sum(n_deaths))  |> 
-  mutate(percentage = n / sum(n)) |> # View()
+  mutate(percentage = n / sum(n)) |> 
+  mutate(deaths_type = case_when(
+    deaths_type == "deaths_a" ~ "Israeliani (non civili)",
+    deaths_type == "deaths_b" ~ "Palestinesi (non civili)",
+    deaths_type == "deaths_civilians" ~ "Civili"
+  )) |> 
   ggplot(aes(x = year, y = percentage, fill = deaths_type)) +
-  geom_bar(stat = "identity",alpha = 0.8, size = 0.3, colour = "black", show.legend = T) +
+  geom_bar(stat = "identity", alpha = 0.7, size = 0.3, colour = "black", show.legend = T) +
   theme_bw() +
   scale_x_continuous(
     breaks = seq(1990, 2023, by = 3),  # Show labels for every 5 years
     minor_breaks = 1989:2023          # Add ticks for every year
-  ) + 
-  scale_fill_manual(
-    values = met.brewer("Egypt", n = 4),  # Usa la palette Egypt con 4 colori
-    labels = c("Israeliani (non civili)", "Palestinesi (non civili)", "Civili", "Sconosciuto")
   ) +
  # scale_fill_viridis_d() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
@@ -200,9 +178,7 @@ war_nf |>
   labs(
     x = "Regione amministrativa", 
     y = "Frequenza relativa", 
-    fill = "Fazione palestinese contrapposta ad Israele") +
-  scale_fill_manual(
-    values = met.brewer("Egypt", n = 4))
+    fill = "Fazione palestinese contrapposta ad Israele")
 
 
 
@@ -256,12 +232,17 @@ region <- st_crop(world, region_bbox)
 # Convert df to an sf object
 df_sf <- st_as_sf(df, coords = c("x", "y"), crs = 4326)
 
+# luoghi di culto
 w_isr <- read.csv("places_of_worship_israel.csv", sep = ",")[,-1]
 w_isr <- w_isr[which(w_isr$id %in% unique(war$id_nearest_pow)),]
 w_isr_sf <- st_as_sf(w_isr[, 1:2], coords = c("Longitude", "Latitude"), crs = 4326)
+# checkpoint militari
 c_isr <- read.csv("military_checkpoints_israel.csv", sep = ",")[,-1]
+c_isr <- c_isr[which(c_isr$id %in% unique(war$id_nearest_chp)),]
 c_isr_sf <- st_as_sf(c_isr[, 1:2], coords = c("Longitude", "Latitude"), crs = 4326)
+# edifici governativi
 p_isr <- read.csv("political_places_israel.csv", sep = ",")[,-1]
+p_isr <- p_isr[which(p_isr$id %in% unique(war$id_nearest_gov)),]
 p_isr_sf <- st_as_sf(p_isr[, 1:2], coords = c("Longitude", "Latitude"), crs = 4326)
 
 
@@ -452,100 +433,13 @@ text(x = as.numeric(max_point$date_start),
 
 par(mfrow = c(1, 1))
 
+#### FUNZIONE K ####
 
 
-
-# rinominazione main
-plot.globaldiag <- function (x, samescale = TRUE, ...) 
-{
-  oldpar <- par(no.readonly = TRUE)
-  on.exit(par(oldpar))
-  lims <- if (samescale) {
-    range(c(as.numeric(x$est), as.numeric(x$theo), as.numeric(x$diffK)))
-  }
-  else {
-    NULL
-  }
-  par(mfrow = c(1, 3))
-  fields::image.plot(x$dist, x$times, x$est, main = "Funzione K stimata", 
-                     xlab = "r", ylab = "h", col = grDevices::hcl.colors(12, 
-                                                                         "YlOrRd", rev = TRUE), zlim = lims, legend.mar = 12, 
-                     axes = FALSE)
-  axis(1, at = seq(0, 1, l = length(x$dist)), labels = round(x$dist, 
-                                                             3))
-  axis(2, at = seq(0, 1, l = length(x$times)), labels = round(x$times, 
-                                                              3))
-  box()
-  fields::image.plot(x$dist, x$times, x$theo, main = "Funzione K teorica", 
-                     xlab = "r", ylab = "h", col = grDevices::hcl.colors(12, 
-                                                                         "YlOrRd", rev = TRUE), zlim = lims, legend.mar = 12, 
-                     axes = FALSE)
-  axis(1, at = seq(0, 1, l = length(x$dist)), labels = round(x$dist, 
-                                                             3))
-  axis(2, at = seq(0, 1, l = length(x$times)), labels = round(x$times, 
-                                                              3))
-  box()
-  fields::image.plot(x$dist, x$times, x$diffK, main = "Differenza", 
-                     xlab = "r", ylab = "h", col = grDevices::hcl.colors(12, 
-                                                                         "YlOrRd", rev = TRUE), zlim = lims, legend.mar = 15, 
-                     axes = FALSE)
-  axis(1, at = seq(0, 1, l = length(x$dist)), labels = round(x$dist, 
-                                                             3))
-  axis(2, at = seq(0, 1, l = length(x$times)), labels = round(x$times, 
-                                                              3))
-  box()
-}
 
 mod_const <- stppm(proc, ~ 1, W = W)
 gb_const <- globaldiag(proc, mod_const$l) 
 
-library(lattice)
-plot3d.globaldiag <- function(x){
-  # Preparazione dei dati per il grafico
-  k_est <- x$est
-  k_teor <- x$theo
-  k_diff <- x$diffK
-  data_est <- expand.grid(r = x$dist, h = x$times)
-  data_est$k <- as.vector(k_est)
-  data_est$type <- "K stimata"
-  
-  data_teor <- expand.grid(r = x$dist, h = x$times)
-  data_teor$k <- as.vector(k_teor)
-  data_teor$type <- "K teorica"
-  
-  data_diff <- expand.grid(r = x$dist, h = x$times)
-  data_diff$k <- as.vector(k_diff)
-  data_diff$type <- "Differenza"
-  
-  # Combina i dati
-  data <- rbind(data_est, data_teor, data_diff)
-  
-  # Ordina i livelli del fattore `type` (k_est, k_teor, k_diff)
-  data$type <- factor(data$type, levels = c("K stimata", "K teorica", "Differenza"))
-  
-  # Palette personalizzata
-  palette_custom <- grDevices::hcl.colors(100, "YlOrRd", rev = TRUE)
-  
-  # Grafico con wireframe, font ridotto per etichette e nomi degli assi
-  wireframe(
-    k ~ r * h | type, 
-    data = data,
-    drape = TRUE,
-    scales = list(
-      arrows = FALSE,
-      cex = 0.5 # Riduce la dimensione delle etichette degli assi
-    ),
-    col.regions = palette_custom,
-    screen = list(z = 35, x = -70),
-    main = "",
-    par.settings = list(
-      axis.text = list(cex = 0.7),  # Riduce il font delle etichette
-      par.xlab.text = list(cex = 0.5),  # Riduce il font del nome dell'asse X
-      par.ylab.text = list(cex = 0.5),  # Riduce il font del nome dell'asse Y
-      par.zlab.text = list(cex = 0.5)   # Riduce il font del nome dell'asse Z
-    )
-  )
-}
 
 plot3d.globaldiag(gb_const)
 
