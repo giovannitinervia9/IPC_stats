@@ -26,7 +26,7 @@ military_points <- military_places$osm_points |>
 library(sf)
 datasf <- st_as_sf(military_points, coords = c("Longitude", "Latitude"),
                    crs = 4326)
-datam <- st_transform(datasf, crs = 32633)
+datam <- st_transform(datasf, crs = 2039)
 set.seed(123)
 datakm <- st_coordinates(datam)/1000
 datakm <- as.data.frame(datakm)

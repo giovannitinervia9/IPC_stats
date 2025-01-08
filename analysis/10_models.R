@@ -21,6 +21,11 @@ war$event_clarity <- factor(war$event_clarity)
 war$date_prec <- factor(war$date_prec)
 colnames(war)
 
+war <- war |> filter(year == 2023)
+date_start <- war$date_start
+date_start <- as.Date(date_start, format = "%Y-%m-%d")
+days_since_start <- as.numeric(date_start - min(date_start))
+war$days_since_start <- days_since_start
 
 
 #### SPATSTAT ####
@@ -28,7 +33,7 @@ conflicts_points <- data.frame(x = war$x, y = war$y)
 
 # Create SF object with correct CRS
 conflicts_points_sf <- st_as_sf(conflicts_points, coords = c("x", "y"), 
-                                crs = 32633)
+                                crs = 2039)
 
 #### LETTURA SHAPEFILE ISRAELE ####
 library(sf)
@@ -39,8 +44,8 @@ israel_polygon <- st_read("israel_palestine_combined.shp")
 st_crs(israel_polygon)
 
 # Trasforma il sistema di coordinate in UTM (metri)
-israel_polygon_proj <- st_transform(israel_polygon, crs = 32633)
-conflict_points_proj <- st_transform(conflicts_points_sf, crs = 32633)
+israel_polygon_proj <- st_transform(israel_polygon, crs = 2039)
+conflict_points_proj <- st_transform(conflicts_points_sf, crs = 2039)
 
 # Riscalare in chilometri dividendo per 1000
 israel_polygon_proj_km <- israel_polygon_proj
@@ -60,21 +65,21 @@ conflicts_sp <- as(intersected_points, "Spatial")
 # Create window
 israel_window <- as.owin(israel_polygon_proj)
 
-# Create ppp
-conflicts_ppp <- ppp(
-  x = coordinates(conflicts_sp)[,1],
-  y = coordinates(conflicts_sp)[,2],
-  window = israel_window
-)
-plot(conflicts_ppp)
-axis(1); axis(2)
-
-mod <- ppm(conflicts_ppp, ~ poly(x, 2) + poly(y, 2))
-mod
-plot(predict(mod))
-plot(conflicts_ppp, add = T, pch = ".", cex = 1.5, alpha = 0.05, cols = "grey")
-plot(sqrt(density(conflicts_ppp)))
-plot(log(density(conflicts_ppp)))
+# # Create ppp
+# conflicts_ppp <- ppp(
+#   x = coordinates(conflicts_sp)[,1],
+#   y = coordinates(conflicts_sp)[,2],
+#   window = israel_window
+# )
+# plot(conflicts_ppp)
+# axis(1); axis(2)
+# 
+# mod <- ppm(conflicts_ppp, ~ poly(x, 2) + poly(y, 2))
+# mod
+# plot(predict(mod))
+# plot(conflicts_ppp, add = T, pch = ".", cex = 1.5, alpha = 0.05, cols = "grey")
+# plot(sqrt(density(conflicts_ppp)))
+# plot(log(density(conflicts_ppp)))
 
 #### stopp ####
 library(stopp)
@@ -86,17 +91,6 @@ source("funzioni nuove e internals.R")
 W <- israel_window
 conflicts_points <- data.frame(x = war$x, y = war$y, t = war$days_since_start)
 proc <- stp(conflicts_points)
-mod <- stppm(X = proc,
-             formula = ~ (x + y + t)^2 + I(x^2) + I(y^2) + I(t^2),
-             W = W)
-summary(mod$mod_global)
-
-gb_mod <- globaldiag(proc, mod$l)
-
-plot3d.globaldiag(gb_mod)
-plot.globaldiag(gb_mod)
-# scaler = c("silverman", "IQR", "sd", "var")
-plot.stppm(mod, W = W, scaler = "sd", do.points = F)
 
 # models with covariates
 covariates <- c("dist_nearest_pow", "dist_nearest_gov", "dist_nearest_chp",
@@ -139,41 +133,83 @@ if(file.exists("covs.rds")){
 
 
 
-mod2 <- stppm(proc, ~ (x + y + t)^2 + I(x^2) + I(y^2) + I(t^2) + dist_nearest_pow +
+mod_cov <- stppm(proc, ~ (x + y + t)^2 + I(x^2) + I(y^2) + I(t^2) + dist_nearest_pow +
                 dist_nearest_gov + dist_nearest_chp + 
                 days_from_nearest_heb_cal + days_from_nearest_isl_cal,
               covs = covs, spatial.cov = T, W = W)
+# plot.stppm(mod_cov, W = W, do.points = F, scaler = "var")
+
+g_mod_cov <- globaldiag(proc, mod_cov$l)
+plot3d.globaldiag(g_mod_cov)
+
+summary(mod_cov$mod_global)
 
 
 
-summary(mod2$mod_global)
-plot.stppm(x = mod2, W = W, scaler = "sd", do.points = F)
+mod_non_cov <- stppm(proc, ~ (x + y + t)^2 + I(x^2) + I(y^2) + I(t^2), W = W)
+g_mod_non_cov <- globaldiag(proc, mod_non_cov$l)
+plot3d.globaldiag(g_mod_non_cov)
+summary(mod_cov$mod_global)
 
-gb_mod2 <- globaldiag(proc, mod2$l)
 
 
-mod2$mod_global
 library(ggeffects)
-predict_response(mod2$mod_global, terms = "x") |>
-  ggplot(aes(x, predicted)) + geom_line()
+predict_response(mod_cov$mod_global, terms = "x") |> plot()
+predict_response(mod_cov$mod_global, terms = "y") |> plot()
+predict_response(mod_cov$mod_global, terms = "t") |> plot()
 
-predict_response(mod2$mod_global, terms = "y") |>
-  ggplot(aes(x, predicted)) + geom_line()
+plot.stppm(x = mod_cov, W = W, scaler = "sd", do.points = F)
 
-predict_response(mod2$mod_global, terms = "days_from_nearest_heb_cal") |>
-  ggplot(aes(x, predicted)) + geom_line()
+gb_mod_cov <- globaldiag(proc, mod_cov$l)
+library(ggeffects)
+dev.off()
+predict_response(mod_cov$mod_global, terms = "dist_nearest_pow") |> plot()
+predict_response(mod_cov$mod_global, terms = "dist_nearest_gov") |> plot()
+predict_response(mod_cov$mod_global, terms = "dist_nearest_chp") |> plot()
+predict_response(mod_cov$mod_global, terms = "days_from_nearest_heb_cal") |> plot()
+predict_response(mod_cov$mod_global, terms = "days_from_nearest_isl_cal") |> plot()
 
-plot(predict_response(mod2$mod_global, terms = "days_from_nearest_heb_cal"))
-
-#### LOG GAUSSIAN COX 
+#### LOG GAUSSIAN COX
+seed <- rnbinom(1, mu = 10000, size = 0.05) + rpois(1, 100)
+seed
 modlgc <- stlgcppm(X = proc, formula = ~ (x + y + t)^2 + I(x^2) + I(y^2) + I(t^2), W = W,
-                 cov = "separable")
-summary(modlgc$mod_global)
-plot.stppm(modlgc, W = W, scaler = "sd", do.points = F)
-g_modlgc <- globaldiag(proc, modlgc$l)
-plot3d.globaldiag(g_modlgc)
-plot.globaldiag(g_modlgc)
+                 cov = "separable", seed = seed)
 
+#### analisi stime dei parametri di covarianza
+library(parallel)
+# B <- 1000
+# seed <- sample(1:1000000, B, F)
+# system.time({
+#   res <- mclapply(seq_len(B), mc.cores = 16, function(i){
+#     tryCatch(expr = {
+#       modlgc <- stlgcppm(X = proc, formula = ~ (x + y + t)^2 + I(x^2) + I(y^2) + I(t^2), W = W,
+#                          cov = "separable", seed = seed[i], max_vals = c(20, 20, 364))
+#       c(modlgc$CovCoefs, seed[i])
+#     }, error = function(e) conditionMessage(e))
+#     
+#   })
+# })
+# 
+# res <- do.call(rbind, res)
+# res <- res[order(res[, 3]), ]
+# colnames(res) <- c(colnames(res)[1:3], "seed")
+# res <- as.data.frame(res)
+# head(res)
+# 
+# res[which(round(res$beta, 3) >= median(res$beta))[1], ]
+
+modlgc <- stlgcppm(X = proc, formula = ~ (x + y + t)^2 + I(x^2) + I(y^2) + I(t^2), W = W,
+                   cov = "separable", seed = 768344, max_vals = c(20, 20, 364))
+
+
+####
+summary(modlgc$mod_global)
+# plot.stppm(modlgc, W = W, scaler = "sd", do.points = F)
+g_modlgc <- globaldiag(proc, modlgc$l)
+
+plot3d.globaldiag(g_modlgc)
+plot3d.globaldiag(gb_mod_cov)
+plot.globaldiag(g_modlgc)
 
 plot.lgcpcov <- function(x, r = seq(0, 25, l = 30), h = seq(0, 3000, l = 30)){
   
@@ -207,19 +243,35 @@ plot.lgcpcov <- function(x, r = seq(0, 25, l = 30), h = seq(0, 3000, l = 30)){
 plot.lgcpcov(modlgc)
 
 
+#glm() = y = b0 + b1*x1 + ... + bk*xk
+#gam() = y = b0 + b1*f(x1)
 
-
-mod3 <- stppm(proc, ~ s(x) + s(y) + s(t) + x:y + x:t + y:t + x:y:t + dist_nearest_pow +
+mod3 <- stppm(proc, ~ s(x) + s(y) + s(t) + dist_nearest_pow +
         dist_nearest_gov + dist_nearest_chp + 
         days_from_nearest_heb_cal + days_from_nearest_isl_cal,
       covs = covs, spatial.cov = T, W = W)
 gb_mod3 <- globaldiag(proc, mod3$l)
-
+plot.stppm(mod3, W = W, scaler = "sd")
 mod3
 summary(mod3$mod_global)
 plot3d.globaldiag(gb_mod3)
 plot(war$x, mod3$y_resp)
 
 # dist_nearest_chp days_from_nearest_heb_cal days_from_nearest_isl_cal
+library(ggeffects)
+predict_response(mod3$mod_global, terms = "x") |> plot()
+predict_response(mod3$mod_global, terms = "y") |> plot()
+predict_response(mod3$mod_global, terms = "t") |> plot()
 
-predict_response(mod2$mod_global, terms = "days_from_nearest_heb_cal") |> plot()
+
+
+mod_const <- stppm(proc, ~ 1, W = W)
+gb_mod_const <- globaldiag(proc, mod_const$l)
+plot3d.globaldiag(gb_mod_const)
+
+
+mod_const_lgc <- stlgcppm(X = proc, formula = ~ 1, W = W,
+                   cov = "separable")
+
+gb_mod_const_lgc <- globaldiag(proc, mod_const_lgc$l)
+plot3d.globaldiag(gb_mod_const_lgc)

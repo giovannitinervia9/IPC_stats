@@ -30,7 +30,7 @@ df <- data.frame(x = war$longitude, y = war$latitude, y = war$days_since_start)
 library(sf)
 datasf <- st_as_sf(data, coords = c("longitude", "latitude"),
                    crs = 4326)
-datam <- st_transform(datasf, crs = 32633)
+datam <- st_transform(datasf, crs = 2039) # 2039 da sostituire al 32633
 set.seed(123)
 datakm <- (st_coordinates(datam) + rnorm(nrow(data), 0, 1))/1000
 datakm <- as.data.frame(datakm)

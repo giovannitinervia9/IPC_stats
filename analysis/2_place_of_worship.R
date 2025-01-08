@@ -27,7 +27,7 @@ filtered_places2 <- points2 |>
 library(sf)
 datasf <- st_as_sf(filtered_places2, coords = c("Longitude", "Latitude"),
                    crs = 4326)
-datam <- st_transform(datasf, crs = 32633)
+datam <- st_transform(datasf, crs = 2039)
 set.seed(123)
 datakm <- st_coordinates(datam)/1000
 datakm <- as.data.frame(datakm)
