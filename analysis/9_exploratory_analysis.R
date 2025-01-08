@@ -529,7 +529,7 @@ library(sf)
 library(rnaturalearth)
 library(rnaturalearthdata)
 library(dplyr)
-dev.off()
+# dev.off()
 war <- read.csv("war.csv")
 war <- war |> filter(year == 2023)
 
@@ -819,6 +819,7 @@ proc <- stp(conflicts_points)
 
 
 par(mfrow = c(1, 3))
+
 # primo grafico
 plot3D::scatter3D(proc$df$x, proc$df$y, proc$df$t, theta = -45, phi = 20, 
                   pch = 20, cex = 0.5, ticktype = "detailed", col = "black", xlab = "x", 
@@ -833,9 +834,9 @@ mtext("y", side = 2, line = 3, cex = 0.8)
 # terzo grafico
 # plot3_data processing
 plot3_data <- war |> 
-  dplyr::select(date_start, year) |>
+  dplyr::select(date_start) |>
   mutate(date_start = as_date(date_start)) |> 
-  group_by(date_start, year) |> 
+  group_by(date_start) |> 
   count()
 
 
