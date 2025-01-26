@@ -470,7 +470,7 @@ mtext("y", side = 2, line = 3, cex = 0.8)
 # terzo grafico
 # plot3_data processing
 plot3_data <- war |> 
-  select(date_start, year) |>
+  dplyr::select(date_start, year) |>
   mutate(date_start = as_date(date_start)) |> 
   group_by(date_start, year) |> 
   count()
@@ -849,10 +849,10 @@ plot(plot3_data$date_start,
      ylab = "",
      main = "Point pattern temporale")
 
-# Aggiungi l'asse x con etichette personalizzate in italiano
+
 axis(1, 
      at = seq(min(plot3_data$date_start), max(plot3_data$date_start), by = "month"), 
-     labels = format(seq(min(plot3_data$date_start), max(plot3_data$date_start), by = "month"), "%b %Y") %>%
+     labels = format(seq(min(plot3_data$date_start), max(plot3_data$date_start), by = "month"), "%b") %>%
        gsub("Jan", "Gen", .) %>%
        gsub("Feb", "Feb", .) %>%
        gsub("Mar", "Mar", .) %>%
@@ -883,3 +883,4 @@ plot3d.globaldiag(gb_const)
 
 
 plot.globaldiag(gb_const)
+
