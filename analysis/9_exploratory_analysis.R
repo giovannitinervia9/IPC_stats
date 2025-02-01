@@ -15,6 +15,7 @@ if(!require(spatstat)) install.packages("spatstat")
 
 # caricamento dati
 war <- read.csv("war.csv")
+war_nf <- read.csv("IS_PAL_non_filtered.csv")
 
 war_nf |> group_by(year) |> count() |> 
   ggplot(aes(x = year, y = n)) + 
@@ -27,7 +28,7 @@ war_nf |> group_by(year) |> count() |>
 war |> group_by(year) |> count() |> arrange(-year)  
 war_nf |> group_by(year) |> count() |> arrange(-year)
 
-war_nf <- read.csv("IS_PAL_non_filtered.csv")
+
 
 
 #### ANALISI ESPLORATIVE ADM_1, DEATHS ####
